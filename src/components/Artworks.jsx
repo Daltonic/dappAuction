@@ -27,12 +27,12 @@ const Auction = ({ id }) => (
       <img
         src={require(`../assets/images/picture${id}.png`)}
         alt="nft"
-        className="object-cover w-full h-60 mt-5"
+        className="object-cover w-full h-60"
       />
     </Link>
     <div
       className="shadow-lg shadow-gray-400 border-4 border-[#ffffff36] 
-      flex flex-row justify-between items-center px-3"
+      flex flex-row justify-between items-center text-gray-300 px-3"
     >
       <div className="p-2">
         Current Bid
