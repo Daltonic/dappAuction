@@ -1,4 +1,3 @@
-import React from 'react'
 import { BsPlayFill } from 'react-icons/bs'
 import { BsArrowRightShort } from 'react-icons/bs'
 import { setGlobalState} from "../store"

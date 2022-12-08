@@ -1,7 +1,7 @@
 import React from 'react'
 import { setGlobalState,useGlobalState } from "../store/index"
 import { FaTimes} from 'react-icons/fa'
-import picture6 from '../assets/images/picture6.jpg'
+import picture6 from '../assets/images/picture6.png'
   
 
 const Modal = () => {

@@ -1,14 +1,11 @@
-import Aside from "../components/Aside"
-import Body from "../components/Body"
-
-
-
+import Artworks from '../components/Artworks'
+import Main from '../components/Main'
 
 const Home = () => {
   return (
-    <div> 
-        <Body/>
-        <Aside/>
+    <div>
+      <Main />
+      <Artworks />
     </div>
   )
 }
