@@ -1,7 +1,7 @@
 import auction from '../abis/src/contracts/Auction.sol/Auction.json'
 import nft from '../abis/src/contracts/NFT.sol/NFT.json'
 import addresses from '../abis/contractAddress.json'
-import { getGlobalState, setGlobalState } from './store'
+import { getGlobalState, setGlobalState } from '../store'
 import { ethers } from 'ethers'
 
 const { ethereum } = window
