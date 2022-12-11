@@ -1,28 +1,31 @@
-import { setGlobalState, useGlobalState } from '../store'
+import axios from 'axios'
+import { useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import picture6 from '../assets/images/picture6.png'
-import { useState } from 'react'
+import { setGlobalState, useGlobalState } from '../store'
 
 const CreateNFT = () => {
   const [boxModal] = useGlobalState('boxModal')
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
   const [fileUrl, setFileUrl] = useState('')
   const [imgBase64, setImgBase64] = useState(null)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!title || !price || !description) return
+    if (!name || !price || !description) return
 
-    const params = {
-      title,
-      price,
-      description,
-      fileUrl,
-    }
-
-    console.log(params)
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('price', price)
+    formData.append('description', description)
+    formData.append('image', fileUrl)
+    
+    await axios
+      .post('http://localhost:9000/process', formData)
+      .then((res) => console.log(res))
+      .catch((error) => console.log(error))
   }
 
   const changeImage = async (e) => {
@@ -44,7 +47,7 @@ const CreateNFT = () => {
   const resetForm = () => {
     setFileUrl('')
     setImgBase64(null)
-    setTitle('')
+    setName('')
     setPrice('')
     setDescription('')
   }
@@ -103,10 +106,10 @@ const CreateNFT = () => {
                 text-slate-500 bg-transparent border-0
                 focus:outline-none focus:ring-0 px-4 py-2"
               type="text"
-              name="title"
+              name="name"
               placeholder="Title"
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
+              onChange={(e) => setName(e.target.value)}
+              value={name}
               required
             />
           </div>
