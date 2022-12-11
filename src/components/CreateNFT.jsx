@@ -1,57 +1,159 @@
-import { BsPlayFill } from 'react-icons/bs'
-import { BsArrowRightShort } from 'react-icons/bs'
-import { setGlobalState } from '../store'
+import { setGlobalState, useGlobalState } from '../store'
+import { FaTimes } from 'react-icons/fa'
+import picture6 from '../assets/images/picture6.png'
+import { useState } from 'react'
 
 const CreateNFT = () => {
+  const [boxModal] = useGlobalState('boxModal')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [price, setPrice] = useState('')
+  const [fileUrl, setFileUrl] = useState('')
+  const [imgBase64, setImgBase64] = useState(null)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!title || !price || !description) return
+
+    const params = {
+      title,
+      price,
+      description,
+      fileUrl,
+    }
+
+    console.log(params)
+  }
+
+  const changeImage = async (e) => {
+    const reader = new FileReader()
+    if (e.target.files[0]) reader.readAsDataURL(e.target.files[0])
+
+    reader.onload = (readerEvent) => {
+      const file = readerEvent.target.result
+      setImgBase64(file)
+      setFileUrl(e.target.files[0])
+    }
+  }
+
+  const closeModal = () => {
+    setGlobalState('boxModal', 'scale-0')
+    resetForm()
+  }
+
+  const resetForm = () => {
+    setFileUrl('')
+    setImgBase64(null)
+    setTitle('')
+    setPrice('')
+    setDescription('')
+  }
+
   return (
     <div
-      className="flex flex-col md:flex-row w-full justify-between 
-        items-center mx-auto"
+      className={`fixed top-0 left-0 w-screen h-screen flex items-center
+        justify-center bg-black bg-opacity-50 transform
+        transition-transform duration-300 ${boxModal}`}
     >
-      <div className="">
-        <h1 className="text-white font-semibold text-5xl py-1">
-          Discover, Collect
-        </h1>
-        <h1 className="font-semibold text-4xl mb-5 text-white py-1">
-          and Sell
-          <span className="text-green-500 px-1">NFTs</span>.
-        </h1>
-        <p className="text-white  font-light">
-          More than 100+ NFT available for collect
-        </p>
-        <p className="text-white mb-11 font-light">& sell, get your NFT now.</p>
-        <div className="flex flew-row text-5xl mb-4">
+      <div className="bg-[#151c25] shadow-xl shadow-[#25bd9c] rounded-xl w-11/12 md:w-2/5 h-7/12 p-6">
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <div className="flex flex-row justify-between items-center">
+            <p className="font-semibold text-gray-400 italic">Add NFT</p>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="border-0 bg-transparent focus:outline-none"
+            >
+              <FaTimes className="text-gray-400" />
+            </button>
+          </div>
+
+          <div className="flex flex-row justify-center items-center rounded-xl mt-5">
+            <div className="shrink-0 rounded-xl overflow-hidden h-20 w-20">
+              <img
+                alt="NFT"
+                className="h-full w-full object-cover cursor-pointer"
+                src={imgBase64 || picture6}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <label className="block">
+              <span className="sr-only">Choose profile photo</span>
+              <input
+                type="file"
+                accept="image/png, image/gif, image/jpeg, image/webp"
+                className="block w-full text-sm text-slate-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-[#19212c] file:text-gray-300
+                  hover:file:bg-[#1d2631]
+                  cursor-pointer focus:ring-0 focus:outline-none"
+                onChange={changeImage}
+                required
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <input
+              className="block w-full text-sm
+                text-slate-500 bg-transparent border-0
+                focus:outline-none focus:ring-0 px-4 py-2"
+              type="text"
+              name="title"
+              placeholder="Title"
+              onChange={(e) => setTitle(e.target.value)}
+              value={title}
+              required
+            />
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <input
+              className="block w-full text-sm
+                text-slate-500 bg-transparent border-0
+                focus:outline-none focus:ring-0 px-4 py-2"
+              type="number"
+              name="price"
+              step={0.01}
+              min={0.01}
+              placeholder="Price (Eth)"
+              onChange={(e) => setPrice(e.target.value)}
+              value={price}
+              required
+            />
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <textarea
+              className="block w-full text-sm resize-none
+                text-slate-500 bg-transparent border-0
+                focus:outline-none focus:ring-0 h-18 py-2 px-4"
+              type="text"
+              name="description"
+              placeholder="Description"
+              onChange={(e) => setDescription(e.target.value)}
+              value={description}
+              required
+            ></textarea>
+          </div>
+
           <button
-            className="text-white text-sm px-2 bg-green-500 rounded-sm w-auto 
-            flex flex-row justify-center items-center shadow-md shadow-gray-700"
-            onClick={() => setGlobalState('boxModal', 'scale-100')}
+            type="submit"
+            className="flex flex-row justify-center items-center
+              w-full text-white text-md bg-[#25bd9c]
+              py-2 px-5 rounded-full
+              drop-shadow-xl border border-transparent
+              hover:bg-transparent hover:text-[#ffffff]
+              hover:border hover:border-[#25bd9c]
+              focus:outline-none focus:ring mt-5"
           >
-            Create NFT
-            <BsArrowRightShort className="font-bold animate-pulse" />
+            Mint Now
           </button>
-          <button
-            className="text-white text-sm p-2 mx-5 flex flex-row 
-                    justify-center items-center bg-[#ffffff36] rounded-sm w-auto"
-          >
-            <BsPlayFill className="animate-pulse" />
-            <span className="px-2"> | </span>
-            Learn More
-          </button>
-        </div>
-        <div className="flex items-center justify-between w-3/4 mt-5">
-          <div>
-            <p className="text-white font-bold">100k+</p>
-            <small className="text-gray-300">Auction</small>
-          </div>
-          <div>
-            <p className="text-white font-bold">210k+</p>
-            <small className="text-gray-300">Rare</small>
-          </div>
-          <div>
-            <p className="text-white font-bold">120k+</p>
-            <small className="text-gray-300">Artist</small>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   )
