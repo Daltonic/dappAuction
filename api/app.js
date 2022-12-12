@@ -4,7 +4,7 @@ const fs = require('fs').promises
 const express = require('express')
 const { v4: uuid } = require('uuid')
 const fileupload = require('express-fileupload')
-const { toWebp, client, toMetadata } = require('./metadata')
+const { toWebp, toMetadata, uploadToIPFS } = require('./metadata')
 
 const app = express()
 
@@ -30,8 +30,7 @@ app.post('/process', async (req, res) => {
     let params
 
     await toWebp(image.data).then(async (data) => {
-      const created = await client.add(data)
-      const imageURL = `https://ipfs.io/ipfs/${created.path}`
+      const imageURL = await uploadToIPFS(data)
 
       params = {
         id: uuid(),
@@ -46,8 +45,7 @@ app.post('/process', async (req, res) => {
       .then(() => {
         fs.readFile('token.json')
           .then(async (data) => {
-            const created = await client.add(data)
-            const metadataURI = `https://ipfs.io/ipfs/${created.path}`
+            const metadataURI = await uploadToIPFS(data)
             console.log({ ...toMetadata(params), metadataURI })
             return res.status(201).json({ ...toMetadata(params), metadataURI })
           })

@@ -1,12 +1,13 @@
-const sharp = require('sharp');
-const { v4: uuid } = require('uuid');
-const { faker } = require('@faker-js/faker');
-const ipfsClient = require('ipfs-http-client');
+const sharp = require('sharp')
+const { v4: uuid } = require('uuid')
+const { faker } = require('@faker-js/faker')
+const ipfsClient = require('ipfs-http-client')
 
-const auth = 'Basic ' +
+const auth =
+  'Basic ' +
   Buffer.from(process.env.INFURIA_PID + ':' + process.env.INFURIA_API).toString(
-    'base64'
-  );
+    'base64',
+  )
 const client = ipfsClient.create({
   host: 'ipfs.infura.io',
   port: 5001,
@@ -14,8 +15,7 @@ const client = ipfsClient.create({
   headers: {
     authorization: auth,
   },
-});
-exports.client = client;
+})
 const attributes = {
   weapon: [
     'Stick',
@@ -38,7 +38,7 @@ const attributes = {
     'Rainforests',
   ],
   rarity: Array.from(Array(6).keys()),
-};
+}
 const toMetadata = ({ id, name, description, price, image }) => ({
   id,
   name,
@@ -70,7 +70,13 @@ const toMetadata = ({ id, name, description, price, image }) => ({
       value: 1,
     },
   ],
-});
-exports.toMetadata = toMetadata;
-const toWebp = async (image) => await sharp(image).resize(500).webp().toBuffer();
-exports.toWebp = toWebp;
+})
+const toWebp = async (image) => await sharp(image).resize(500).webp().toBuffer()
+const uploadToIPFS = async (data) => {
+  const created = await client.add(data)
+  return `https://ipfs.io/ipfs/${created.path}`
+}
+
+exports.toWebp = toWebp
+exports.toMetadata = toMetadata
+exports.uploadToIPFS = uploadToIPFS
