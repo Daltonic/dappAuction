@@ -3,6 +3,8 @@ import { createGlobalState } from 'react-hooks-global-state'
 const { getGlobalState, useGlobalState, setGlobalState } = createGlobalState({
   boxModal: 'scale-0',
   connectedAccount: '',
+  auctions: [],
+  auction: null,
 })
 
 const truncate = (text, startChars, endChars, maxLength) => {

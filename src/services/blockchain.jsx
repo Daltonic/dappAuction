@@ -1,4 +1,4 @@
-import  abi  from '../abis/src/contracts/Auction.sol/Auction.json'
+import abi from '../abis/src/contracts/Auction.sol/Auction.json'
 import address from '../abis/contractAddress.json'
 import { getGlobalState, setGlobalState } from '../store'
 import { ethers } from 'ethers'
@@ -61,7 +61,13 @@ const connectWallet = async () => {
   }
 }
 
-const createNftItem = async ({ name, description, image, metadataURI, price }) => {
+const createNftItem = async ({
+  name,
+  description,
+  image,
+  metadataURI,
+  price,
+}) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
@@ -82,9 +88,36 @@ const createNftItem = async ({ name, description, image, metadataURI, price }) =
   }
 }
 
+const loadAuctions = async () => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const contract = await getEthereumContract()
+    const auctions = await contract.getAllAuctions()
+    setGlobalState('auctions', structuredAuctions(auctions))
+  } catch (error) {
+    reportError(error)
+  }
+}
+
+const structuredAuctions = (auctions) =>
+  auctions
+    .map((auction) => ({
+      tokenId: auction.tokenId.toNumber(),
+      owner: auction.owner.toLowerCase(),
+      seller: auction.seller.toLowerCase(),
+      name: auction.name,
+      description: auction.description,
+      duration: new Date(auction.duration.toNumber()).getTime(),
+      image: auction.image,
+      price: fromWei(auction.price),
+      sold: auction.sold,
+      live: auction.live,
+    }))
+    .reverse()
+
 const reportError = (error) => {
   console.log(error.message)
   throw new Error('No ethereum object.')
 }
 
-export { isWallectConnected, connectWallet, createNftItem }
+export { isWallectConnected, connectWallet, createNftItem, loadAuctions }
