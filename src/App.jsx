@@ -1,12 +1,13 @@
-import { Route, Routes } from 'react-router-dom'
-import Home from './views/Home'
 import Nft from './views/Nft'
+import Home from './views/Home'
+import { useEffect } from 'react'
+import Tokens from './views/Tokens'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CreateNFT from './components/CreateNFT'
-import { useEffect } from 'react'
+import { ToastContainer } from 'react-toastify'
+import { Route, Routes } from 'react-router-dom'
 import { isWallectConnected } from './services/blockchain'
-import Tokens from './views/Tokens'
 
 function App() {
   useEffect(async () => {
@@ -27,6 +28,18 @@ function App() {
       </Routes>
       <CreateNFT />
       <Footer />
+      <ToastContainer
+        position="bottom-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   )
 }

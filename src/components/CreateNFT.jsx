@@ -1,11 +1,14 @@
 import axios from 'axios'
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { FaTimes } from 'react-icons/fa'
 import picture6 from '../assets/images/picture6.png'
 import { setGlobalState, useGlobalState } from '../store'
+import { createNftItem } from '../services/blockchain'
 
 const CreateNFT = () => {
   const [boxModal] = useGlobalState('boxModal')
+  const [msg, setMsg] = useState('Processing...')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
@@ -14,18 +17,38 @@ const CreateNFT = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!name || !price || !description) return
+    if (!name || !price || !description || !fileUrl) return
 
     const formData = new FormData()
     formData.append('name', name)
     formData.append('price', price)
     formData.append('description', description)
     formData.append('image', fileUrl)
-    
-    await axios
-      .post('http://localhost:9000/process', formData)
-      .then((res) => console.log(res))
-      .catch((error) => console.log(error))
+
+    setMsg('Processing and uploading metadata...')
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await axios
+          .post('http://localhost:9000/process', formData)
+          .then(async (res) => {
+            setMsg('Saving data to chain...')
+            await createNftItem(res.data)
+              .then(async () => {
+                console.log('Data Saved: ', res.data)
+                closeModal()
+                resolve()
+              })
+              .catch(() => reject())
+            reject()
+          })
+          .catch(() => reject())
+      }),
+      {
+        pending: `${msg}`,
+        success: 'Minting completed, will reflect within 30sec 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
   }
 
   const changeImage = async (e) => {

@@ -2,8 +2,9 @@ const { ethers } = require('hardhat')
 const fs = require('fs')
 
 async function main() {
+  const royaltyFee = 5
   const Contract = await ethers.getContractFactory('Auction')
-  const contract = await Contract.deploy()
+  const contract = await Contract.deploy(royaltyFee)
 
   await contract.deployed()
 
