@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import CreateNFT from './components/CreateNFT'
 import { useEffect } from 'react'
 import { isWallectConnected } from './services/blockchain'
+import Tokens from './views/Tokens'
 
 function App() {
   useEffect(async () => {
@@ -21,6 +22,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/tokens" element={<Tokens />} />
         <Route path="/nft/:id" element={<Nft />} />
       </Routes>
       <CreateNFT />

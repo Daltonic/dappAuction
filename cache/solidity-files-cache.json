@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/daltonic/Sites/dappAuction/src/contracts/Auction.sol": {
-      "lastModificationDate": 1670501354227,
-      "contentHash": "49689fbbf7e514f2d44bc39f2b9e9674",
+      "lastModificationDate": 1670945620651,
+      "contentHash": "6b2762551d2bc6c4a392726b48b73b7f",
       "sourceName": "src/contracts/Auction.sol",
       "solcConfig": {
         "version": "0.8.11",
@@ -31,6 +31,7 @@
       "imports": [
         "@openzeppelin/contracts/utils/Counters.sol",
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
         "@openzeppelin/contracts/security/ReentrancyGuard.sol"
       ],
       "versionPragmas": [
@@ -474,45 +475,6 @@
       ],
       "artifacts": [
         "Math"
-      ]
-    },
-    "/Users/daltonic/Sites/dappAuction/src/contracts/NFT.sol": {
-      "lastModificationDate": 1670242978250,
-      "contentHash": "01cdae7e775eea97b18313cb1903ccba",
-      "sourceName": "src/contracts/NFT.sol",
-      "solcConfig": {
-        "version": "0.8.11",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
-        "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
-        "@openzeppelin/contracts/utils/Counters.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "NFT"
       ]
     },
     "/Users/daltonic/Sites/dappAuction/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol": {

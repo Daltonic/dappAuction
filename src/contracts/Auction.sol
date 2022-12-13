@@ -3,43 +3,53 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Auction is ReentrancyGuard {
+contract Auction is ERC721URIStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private totalItems;
-    Counters.Counter private totalSales;
+    Counters.Counter private liveActions;
 
     address companyAcc;
     uint listingPrice = 0.02 ether;
+    uint royalityFee;
 
-    constructor(){
+    constructor(uint _royaltyFee) ERC721("Daltonic Tokens", "DAT"){
         companyAcc = msg.sender;
+        royalityFee = _royaltyFee;
+    }
+
+    struct TokenStruct {
+        uint tokenId;
+        address owner;
+        bool sold;
     }
 
     struct AuctionStruct {
-        uint id;
-        address nftContract;
+        string name;
+        string description;
+        string image;
         uint tokenId;
         address seller;
         address owner;
         uint price;
         bool sold;
+        bool live;
         uint duration;
     }
 
     event AuctionItemCreated (
-        uint indexed id,
-        address indexed nftContract,
-        uint256 indexed tokenId,
+        uint indexed tokenId,
         address  seller,
         address  owner,
-        uint256 price,
+        uint price,
         bool sold
     );
 
     mapping(uint => AuctionStruct) auctionedItem;
     mapping(uint => bool) auctionedItemExist;
+    mapping(string => uint) existingURIs;
     mapping(address => uint) auctionsOf;
 
     function getListingPrice() public view returns (uint) {
@@ -52,55 +62,71 @@ contract Auction is ReentrancyGuard {
     }
 
     function changePrice(
-        uint256 tokenId,
-        uint256 price
+        uint tokenId,
+        uint price
     ) public {
         require(auctionedItem[tokenId].seller == msg.sender, "Unauthorized entity");
         require(!auctionedItem[tokenId].sold, "Item already offered on the market");
+        require(!auctionedItem[tokenId].live, "Item is live on the market");
         require(price > 0 ether, "Price must be greater than zero");
 
         auctionedItem[tokenId].price = price;
     }
 
-    function offerAuction(
-        uint256 tokenId,
-        uint256 period
-    ) public {
-        require(auctionedItem[tokenId].seller == msg.sender, "Unauthorized entity");
-        require(!auctionedItem[tokenId].sold, "Item already offered on the market");
-        require(period > 0, "Days must be greater than zero");
+    function mintToken(string memory tokenURI) internal returns (bool) {
+        totalItems.increment();
+        uint newItemId = totalItems.current();
 
+        _mint(msg.sender, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return true;
+    }
+
+    function offerAuction(
+        uint tokenId,
+        uint period
+    ) public {
+        require(auctionedItem[tokenId].owner == msg.sender, "Unauthorized entity");
+        require(!auctionedItem[tokenId].live, "Item is live on the market");
+        require(period > 0, "Days must be greater than zero");
+        
+        auctionedItem[tokenId].live = true;
+        auctionedItem[tokenId].sold = false;
         auctionedItem[tokenId].duration = block.timestamp * period;
+        setApprovalForAll(address(this), true);
+        IERC721(address(this)).transferFrom(msg.sender, address(this), tokenId);
     }
 
     function createAuction(
-        address nftContract,
-        uint256 tokenId,
-        uint256 price
+        string memory name,
+        string memory description,
+        string memory image,
+        string memory tokenURI,
+        uint price
     ) public payable nonReentrant {
         require(price > 0 ether, "Sales price must be greater than 0 ethers.");
         require(msg.value >= listingPrice, "Price must be up to the listing price.");
+        require(mintToken(tokenURI), "Could not mint token");
 
-        totalItems.increment();
-        uint id = totalItems.current();
+        uint tokenId = totalItems.current();
 
         AuctionStruct memory item;
-        item.id = id;
-        item.nftContract = nftContract;
         item.tokenId = tokenId;
+        item.name = name;
+        item.description = description;
+        item.image = image;
         item.price = price;
         item.seller = msg.sender;
+        item.owner = msg.sender;
 
-        auctionedItem[id] = item;
-        auctionedItemExist[id] = true;
+        auctionedItem[tokenId] = item;
+        auctionedItemExist[tokenId] = true;
         auctionsOf[msg.sender]++;
 
         payTo(companyAcc, listingPrice);
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         emit AuctionItemCreated(
-            id,
-            nftContract,
             tokenId,
             msg.sender,
             address(0),
@@ -109,25 +135,26 @@ contract Auction is ReentrancyGuard {
         );
     }
 
-    function buyAuctionedItem(
-        address nftContract,
-        uint256 id
-    ) public payable nonReentrant {
-        require(msg.value >= auctionedItem[id].price, "Insufficient Amount");
-        require(auctionedItem[id].duration > block.timestamp, "Auction not available");
+    function buyAuctionedItem(uint tokenId) public payable nonReentrant {
+        require(msg.value >= auctionedItem[tokenId].price, "Insufficient Amount");
+        require(auctionedItem[tokenId].duration > block.timestamp, "Auction not available");
 
-        auctionedItem[id].owner = msg.sender;
-        auctionedItem[id].sold = true;
+        address seller = auctionedItem[tokenId].seller;
+        auctionedItem[tokenId].owner = msg.sender;
+        auctionedItem[tokenId].live = false;
+        auctionedItem[tokenId].sold = true;
         auctionsOf[msg.sender]++;
-        auctionsOf[auctionedItem[id].seller]--;
-        totalSales.increment();
+        auctionsOf[seller]--;
+        liveActions.increment();
 
-        payTo(auctionedItem[id].seller, msg.value);
-        IERC721(nftContract).transferFrom(address(this), msg.sender, auctionedItem[id].tokenId);
+        uint256 royality = (msg.value * royalityFee) / 100;
+        payTo(seller, (msg.value - royality));
+        payTo(seller, royality);
+        IERC721(address(this)).transferFrom(address(this), msg.sender, auctionedItem[tokenId].tokenId);
     }
 
     function getUnsoldAuction() public view returns (AuctionStruct[] memory Auctions) {
-        uint unsoldItemCount = totalItems.current() - totalSales.current();
+        uint unsoldItemCount = totalItems.current() - liveActions.current();
         Auctions = new AuctionStruct[](unsoldItemCount);
 
         for(uint i = 0; i < totalItems.current(); i++) {
@@ -149,7 +176,7 @@ contract Auction is ReentrancyGuard {
     }
     
     function getSoldAuction() public view returns (AuctionStruct[] memory Auctions) {
-        uint soldItemCount = totalSales.current();
+        uint soldItemCount = liveActions.current();
         Auctions = new AuctionStruct[](soldItemCount);
 
         for(uint i = 0; i < totalItems.current(); i++) {
@@ -184,7 +211,7 @@ contract Auction is ReentrancyGuard {
         return auctionedItem[id];
     }
 
-    function payTo(address to, uint256 amount) internal {
+    function payTo(address to, uint amount) internal {
         (bool success, ) = payable(to).call{value: amount}("");
         require(success);
     }

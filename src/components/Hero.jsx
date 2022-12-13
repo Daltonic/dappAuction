@@ -34,8 +34,8 @@ const Hero = () => {
                     justify-center items-center bg-[#ffffff36] rounded-sm w-auto"
           >
             <BsPlayFill className="animate-pulse" />
-            <span className="px-2"> | </span>
-            Learn More
+            <span className="px-1"> | </span>
+            Mint Token
           </button>
         </div>
         <div className="flex items-center justify-between w-3/4 mt-5">

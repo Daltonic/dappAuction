@@ -18,10 +18,10 @@ const Header = () => {
       hidden list-none flex-row justify-between 
       items-center flex-initial"
       >
-        <li className="mx-4 cursor-pointer">Market</li>
-        <li className="mx-4 cursor-pointer">Artist</li>
-        <li className="mx-4 cursor-pointer">Features</li>
-        <li className="mx-4 cursor-pointer">Community</li>
+        <Link className="mx-4 cursor-pointer">Market</Link>
+        <Link to="/tokens" className="mx-4 cursor-pointer">Tokens</Link>
+        <Link className="mx-4 cursor-pointer">Account</Link>
+        <Link className="mx-4 cursor-pointer">Community</Link>
       </ul>
 
       {connectedAccount ? (
