@@ -10,20 +10,20 @@ import { ToastContainer } from 'react-toastify'
 import { Route, Routes } from 'react-router-dom'
 import { isWallectConnected, loadAuctions } from './services/blockchain'
 import { useGlobalState } from './store'
+import OfferItem from './components/OfferItem'
 
 function App() {
   const [loaded, setLoaded] = useState(false)
   const [auction] = useGlobalState('auction')
   useEffect(async () => {
     await isWallectConnected()
-    await loadAuctions()
+    await loadAuctions().finally(() => setLoaded(true))
     console.log('Blockchain Loaded')
-    setLoaded(true)
   }, [])
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-t from-gray-800 bg-repeat
+      className="relative min-h-screen bg-gradient-to-t from-gray-800 bg-repeat
     via-[#25bd9c] to-gray-900 bg-center subpixel-antialiased"
     >
       <Header />
@@ -35,7 +35,12 @@ function App() {
         </Routes>
       ) : null}
       <CreateNFT />
-      {auction ? <PlaceBid /> : null}
+      {auction ? (
+        <>
+          <PlaceBid />
+          <OfferItem />
+        </>
+      ) : null}
       <Footer />
       <ToastContainer
         position="bottom-center"

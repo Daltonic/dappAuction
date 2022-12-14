@@ -75,27 +75,12 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
 
     function mintToken(string memory tokenURI) internal returns (bool) {
         totalItems.increment();
-        uint newItemId = totalItems.current();
+        uint tokenId = totalItems.current();
 
-        _mint(msg.sender, newItemId);
-        _setTokenURI(newItemId, tokenURI);
+        _mint(msg.sender, tokenId);
+        _setTokenURI(tokenId, tokenURI);
 
         return true;
-    }
-
-    function offerAuction(
-        uint tokenId,
-        uint period
-    ) public {
-        require(auctionedItem[tokenId].owner == msg.sender, "Unauthorized entity");
-        require(!auctionedItem[tokenId].live, "Item is live on the market");
-        require(period > 0, "Days must be greater than zero");
-        
-        auctionedItem[tokenId].live = true;
-        auctionedItem[tokenId].sold = false;
-        auctionedItem[tokenId].duration = block.timestamp * period;
-        setApprovalForAll(address(this), true);
-        IERC721(address(this)).transferFrom(msg.sender, address(this), tokenId);
     }
 
     function createAuction(
@@ -117,6 +102,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         item.description = description;
         item.image = image;
         item.price = price;
+        item.duration = block.timestamp;
         item.seller = msg.sender;
         item.owner = msg.sender;
 
@@ -133,6 +119,21 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
             price,
             false
         );
+    }
+
+    function offerAuction(
+        uint tokenId,
+        uint period
+    ) public {
+        require(auctionedItem[tokenId].owner == msg.sender, "Unauthorized entity");
+        require(!auctionedItem[tokenId].live, "Item is live on the market");
+        require(period > 0, "Days must be greater than zero");
+        
+        auctionedItem[tokenId].live = true;
+        auctionedItem[tokenId].sold = false;
+        auctionedItem[tokenId].duration = block.timestamp + (1 days * period);
+        setApprovalForAll(address(this), true);
+        IERC721(address(this)).transferFrom(msg.sender, address(this), tokenId);
     }
 
     function buyAuctionedItem(uint tokenId) public payable nonReentrant {
@@ -153,45 +154,11 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         IERC721(address(this)).transferFrom(address(this), msg.sender, auctionedItem[tokenId].tokenId);
     }
 
-    function getUnsoldAuction() public view returns (AuctionStruct[] memory Auctions) {
-        uint unsoldItemCount = totalItems.current() - liveActions.current();
-        Auctions = new AuctionStruct[](unsoldItemCount);
-
-        for(uint i = 0; i < totalItems.current(); i++) {
-            uint index;
-            if(!auctionedItem[i+1].sold) {
-                Auctions[index] = auctionedItem[i+1];
-                index++;
-            }
-        }
+    function getAuction(uint id) public view returns (AuctionStruct memory) {
+        require(auctionedItemExist[id], "Auctioned Item not found");
+        return auctionedItem[id];
     }
 
-    function getMyAuctions() public view returns (AuctionStruct[] memory Auctions) {
-        uint totalItemsCount = totalItems.current();
-        Auctions = new AuctionStruct[](auctionsOf[msg.sender]);
-
-        for(uint i = 0; i < totalItemsCount; i++) {
-            uint index;
-            if(auctionedItem[i+1].owner == msg.sender) {
-                Auctions[index] = auctionedItem[i+1];
-                index++;
-            }
-        }
-    }
-    
-    function getSoldAuction() public view returns (AuctionStruct[] memory Auctions) {
-        uint soldItemCount = liveActions.current();
-        Auctions = new AuctionStruct[](soldItemCount);
-
-        for(uint i = 0; i < totalItems.current(); i++) {
-            uint index;
-            if(auctionedItem[i+1].owner == msg.sender) {
-                Auctions[index] = auctionedItem[i+1];
-                index++;
-            }
-        }
-    }
-    
     function getAllAuctions() public view returns (AuctionStruct[] memory Auctions) {
         uint totalItemsCount = totalItems.current();
         Auctions = new AuctionStruct[](totalItemsCount);
@@ -201,22 +168,90 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
-    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions) {
+    function getUnsoldAuction() public view returns (AuctionStruct[] memory Auctions) {
         uint totalItemsCount = totalItems.current();
-        Auctions = new AuctionStruct[](totalItemsCount);
-
+        uint totalSpace;
         for(uint i = 0; i < totalItemsCount; i++) {
-            uint index;
-            if(auctionedItem[i+1].live && auctionedItem[i+1].duration > block.timestamp) {
+            if(!auctionedItem[i+1].sold) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+        
+        uint index;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(!auctionedItem[i+1].sold) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
+            }
+        }
+    }
+
+    function getMyAuctions() public view returns (AuctionStruct[] memory Auctions) {
+        uint totalItemsCount = totalItems.current();
+        uint totalSpace;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(auctionedItem[i+1].owner == msg.sender) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+        
+        uint index;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(auctionedItem[i+1].owner == msg.sender) {
                 Auctions[index] = auctionedItem[i+1];
                 index++;
             }
         }
     }
     
-    function getAuction(uint id) public view returns (AuctionStruct memory) {
-        require(auctionedItemExist[id], "Auctioned Item not found");
-        return auctionedItem[id];
+    function getSoldAuction() public view returns (AuctionStruct[] memory Auctions) {
+        uint totalItemsCount = totalItems.current();
+        uint totalSpace;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(auctionedItem[i+1].sold) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+        
+        uint index;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(auctionedItem[i+1].sold) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
+            }
+        }
+    }
+
+    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions) {
+        uint totalItemsCount = totalItems.current();
+        uint totalSpace;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(
+                auctionedItem[i+1].live 
+                && auctionedItem[i+1].duration > block.timestamp
+            ) {
+                totalSpace++;
+            }
+        }
+
+        Auctions = new AuctionStruct[](totalSpace);
+        
+        uint index;
+        for(uint i = 0; i < totalItemsCount; i++) {
+            if(
+                auctionedItem[i+1].live 
+                && auctionedItem[i+1].duration > block.timestamp
+            ) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
+            }
+        }
     }
 
     function payTo(address to, uint amount) internal {

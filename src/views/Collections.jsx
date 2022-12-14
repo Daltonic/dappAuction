@@ -10,7 +10,11 @@ const Collections = () => {
   })
   return (
     <div>
-      <Artworks title="Your Collections" auctions={collections} />
+      <Artworks
+        title="Your Collections"
+        auctions={collections}
+        showOffer
+      />
     </div>
   )
 }

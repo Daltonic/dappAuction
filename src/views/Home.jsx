@@ -7,7 +7,7 @@ const Home = () => {
   return (
     <div>
       <Main />
-      <Artworks auctions={auctions} />
+      {auctions.length > 0 ? <Artworks auctions={auctions} /> : null}
     </div>
   )
 }

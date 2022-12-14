@@ -2,7 +2,7 @@ import Countdown from 'react-countdown'
 import { Link } from 'react-router-dom'
 import { setGlobalState } from '../store'
 
-const Artworks = ({ auctions, title }) => {
+const Artworks = ({ auctions, title, showOffer }) => {
   return (
     <div className="w-4/5 py-10 mx-auto justify-center">
       <p className="text-xl uppercase text-white mb-4">
@@ -13,14 +13,24 @@ const Artworks = ({ auctions, title }) => {
         md:gap-4 lg:gap-3 py-2.5 text-white font-mono px-1"
       >
         {auctions.map((auction, i) => (
-          <Auction key={i} auction={auction} />
+          <Auction key={i} auction={auction} showOffer={showOffer} />
         ))}
+      </div>
+
+      <div className="text-center my-5">
+        <button
+          className="shadow-xl shadow-black text-white
+          bg-green-500 hover:bg-green-700 px-4 py-2
+          rounded-full cursor-pointer text-sm sm:text-base"
+        >
+          Load More
+        </button>
       </div>
     </div>
   )
 }
 
-const Auction = ({ auction }) => {
+const Auction = ({ auction, showOffer }) => {
   const Completionist = () => (
     <span className="font-bold text-red-600">Expired</span>
   )
@@ -33,6 +43,11 @@ const Auction = ({ auction }) => {
         {hours}:{minutes}:{seconds}
       </span>
     )
+
+  const onOffer = () => {
+    setGlobalState('auction', auction)
+    setGlobalState('offerModal', 'scale-100')
+  }
 
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
@@ -62,17 +77,44 @@ const Auction = ({ auction }) => {
         <div className="p-2">
           Auction End
           <div className="font-bold text-center">
-            <Countdown date={Date.now() + 10000} renderer={renderer} />
+            {auction.live && Date.now() < auction.duration ? (
+              <Countdown
+                date={Date.now() + auction.duration}
+                renderer={renderer}
+              />
+            ) : (
+              '00:00:00'
+            )}
           </div>
         </div>
       </div>
-      <button
-        className="bg-green-500 w-full h-[40px] p-2 text-center
-        font-bold font-mono"
-        onClick={onPlaceBid}
-      >
-        Place a Bid
-      </button>
+      {showOffer ? (
+        auction.live && Date.now() < auction.duration ? (
+          <button
+            className="bg-yellow-500 w-full h-[40px] p-2 text-center
+            font-bold font-mono"
+            onClick={onOffer}
+          >
+            Auction Live
+          </button>
+        ) : (
+          <button
+            className="bg-red-500 w-full h-[40px] p-2 text-center
+            font-bold font-mono"
+            onClick={onOffer}
+          >
+            Offer Item
+          </button>
+        )
+      ) : (
+        <button
+          className="bg-green-500 w-full h-[40px] p-2 text-center
+          font-bold font-mono"
+          onClick={onPlaceBid}
+        >
+          Place a Bid
+        </button>
+      )}
     </div>
   )
 }

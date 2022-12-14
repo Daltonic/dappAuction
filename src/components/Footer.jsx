@@ -2,10 +2,7 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className="w-full flex md:justify-center justify-between items-center flex-col p-4">
-    <div className="w-full flex sm:flex-row flex-col justify-between items-center my-4">
-      
-
+    <div className=" absolute bottom-0 w-full flex sm:flex-row flex-col justify-between items-center my-4">
       <div className="lg:hidden flex flex-1 justify-evenly items-center flex-wrap sm:mt-0 mt-5 w-full">
         <p className="text-white text-base text-center mx-2 cursor-pointer">
           Market
@@ -27,7 +24,6 @@ const Footer = () => {
         </p>
       </div>
     </div>
-  </div>
   )
 }
 

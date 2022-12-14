@@ -8,7 +8,6 @@ import { createNftItem } from '../services/blockchain'
 
 const CreateNFT = () => {
   const [boxModal] = useGlobalState('boxModal')
-  const [msg, setMsg] = useState('Processing...')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
@@ -25,16 +24,13 @@ const CreateNFT = () => {
     formData.append('description', description)
     formData.append('image', fileUrl)
 
-    setMsg('Processing and uploading metadata...')
     await toast.promise(
       new Promise(async (resolve, reject) => {
         await axios
           .post('http://localhost:9000/process', formData)
           .then(async (res) => {
-            setMsg('Saving data to chain...')
             await createNftItem(res.data)
               .then(async () => {
-                console.log('Data Saved: ', res.data)
                 closeModal()
                 resolve()
               })
@@ -44,7 +40,7 @@ const CreateNFT = () => {
           .catch(() => reject())
       }),
       {
-        pending: `${msg}`,
+        pending: 'Minting & saving data to chain...',
         success: 'Minting completed, will reflect within 30sec 👌',
         error: 'Encountered error 🤯',
       },
