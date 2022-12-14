@@ -19,8 +19,8 @@ const Header = () => {
       items-center flex-initial"
       >
         <Link className="mx-4 cursor-pointer">Market</Link>
-        <Link to="/tokens" className="mx-4 cursor-pointer">Tokens</Link>
-        <Link className="mx-4 cursor-pointer">Account</Link>
+        <Link to="/collections" className="mx-4 cursor-pointer">Collection</Link>
+        <Link className="mx-4 cursor-pointer">Artists</Link>
         <Link className="mx-4 cursor-pointer">Community</Link>
       </ul>
 

@@ -1,18 +1,23 @@
 import Nft from './views/Nft'
 import Home from './views/Home'
 import { useEffect } from 'react'
-import Tokens from './views/Tokens'
+import Collections from './views/Collections'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CreateNFT from './components/CreateNFT'
 import { ToastContainer } from 'react-toastify'
 import { Route, Routes } from 'react-router-dom'
-import { isWallectConnected, loadAuctions } from './services/blockchain'
+import {
+  isWallectConnected,
+  loadAuctions,
+  loadCollections,
+} from './services/blockchain'
 
 function App() {
   useEffect(async () => {
     await isWallectConnected()
     await loadAuctions()
+    await loadCollections()
     console.log('Blockchain Loaded')
   }, [])
 
@@ -24,7 +29,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/tokens" element={<Tokens />} />
+        <Route path="/collections" element={<Collections />} />
         <Route path="/nft/:id" element={<Nft />} />
       </Routes>
       <CreateNFT />

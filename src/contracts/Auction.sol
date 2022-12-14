@@ -158,8 +158,10 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         Auctions = new AuctionStruct[](unsoldItemCount);
 
         for(uint i = 0; i < totalItems.current(); i++) {
+            uint index;
             if(!auctionedItem[i+1].sold) {
-                Auctions[i] = auctionedItem[i+1];
+                Auctions[index] = auctionedItem[i+1];
+                index++;
             }
         }
     }
@@ -169,8 +171,10 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         Auctions = new AuctionStruct[](auctionsOf[msg.sender]);
 
         for(uint i = 0; i < totalItemsCount; i++) {
-            if(auctionedItem[i+1].seller == msg.sender) {
-                Auctions[i] = auctionedItem[i+1];
+            uint index;
+            if(auctionedItem[i+1].owner == msg.sender) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
             }
         }
     }
@@ -180,8 +184,10 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         Auctions = new AuctionStruct[](soldItemCount);
 
         for(uint i = 0; i < totalItems.current(); i++) {
-            if(auctionedItem[i+1].sold) {
-                Auctions[i] = auctionedItem[i+1];
+            uint index;
+            if(auctionedItem[i+1].owner == msg.sender) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
             }
         }
     }
@@ -195,13 +201,15 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         }
     }
 
-    function getOfferedAuctions() public view returns (AuctionStruct[] memory Auctions) {
+    function getLiveAuctions() public view returns (AuctionStruct[] memory Auctions) {
         uint totalItemsCount = totalItems.current();
         Auctions = new AuctionStruct[](totalItemsCount);
 
         for(uint i = 0; i < totalItemsCount; i++) {
-            if(auctionedItem[i+1].duration > block.timestamp) {
-                Auctions[i] = auctionedItem[i+1];
+            uint index;
+            if(auctionedItem[i+1].live && auctionedItem[i+1].duration > block.timestamp) {
+                Auctions[index] = auctionedItem[i+1];
+                index++;
             }
         }
     }

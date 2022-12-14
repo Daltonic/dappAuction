@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/daltonic/Sites/dappAuction/src/contracts/Auction.sol": {
-      "lastModificationDate": 1670945620651,
-      "contentHash": "6b2762551d2bc6c4a392726b48b73b7f",
+      "lastModificationDate": 1671013497228,
+      "contentHash": "038362b5cf4fb4df6ecb1df67f47976c",
       "sourceName": "src/contracts/Auction.sol",
       "solcConfig": {
         "version": "0.8.11",

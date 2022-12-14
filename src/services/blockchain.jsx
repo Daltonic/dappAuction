@@ -37,7 +37,7 @@ const isWallectConnected = async () => {
     window.ethereum.on('accountsChanged', async () => {
       setGlobalState('connectedAccount', accounts[0]?.toLowerCase())
       await isWallectConnected()
-      window.location.reload()
+      await loadCollections()
     })
 
     if (accounts.length) {
@@ -99,6 +99,18 @@ const loadAuctions = async () => {
   }
 }
 
+const loadCollections = async () => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const connectedAccount = getGlobalState('connectedAccount')
+    const contract = await getEthereumContract()
+    const collections = await contract.getMyAuctions({ from: connectedAccount })
+    setGlobalState('collections', structuredAuctions(collections))
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const structuredAuctions = (auctions) =>
   auctions
     .map((auction) => ({
@@ -120,4 +132,10 @@ const reportError = (error) => {
   throw new Error('No ethereum object.')
 }
 
-export { isWallectConnected, connectWallet, createNftItem, loadAuctions }
+export {
+  isWallectConnected,
+  connectWallet,
+  createNftItem,
+  loadAuctions,
+  loadCollections,
+}
