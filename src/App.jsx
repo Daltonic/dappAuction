@@ -7,17 +7,12 @@ import Footer from './components/Footer'
 import CreateNFT from './components/CreateNFT'
 import { ToastContainer } from 'react-toastify'
 import { Route, Routes } from 'react-router-dom'
-import {
-  isWallectConnected,
-  loadAuctions,
-  loadCollections,
-} from './services/blockchain'
+import { isWallectConnected, loadAuctions } from './services/blockchain'
 
 function App() {
   useEffect(async () => {
     await isWallectConnected()
     await loadAuctions()
-    await loadCollections()
     console.log('Blockchain Loaded')
   }, [])
 

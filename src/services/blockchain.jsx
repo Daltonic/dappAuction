@@ -99,6 +99,17 @@ const loadAuctions = async () => {
   }
 }
 
+const loadAuction = async (id) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const contract = await getEthereumContract()
+    const auction = await contract.getAuction(id)
+    setGlobalState('auction', structuredAuctions([auction])[0])
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const loadCollections = async () => {
   try {
     if (!ethereum) return alert('Please install Metamask')
@@ -137,5 +148,6 @@ export {
   connectWallet,
   createNftItem,
   loadAuctions,
+  loadAuction,
   loadCollections,
 }
