@@ -1,5 +1,6 @@
 import Countdown from 'react-countdown'
 import { Link } from 'react-router-dom'
+import { setGlobalState } from '../store'
 
 const Artworks = ({ auctions, title }) => {
   return (
@@ -33,6 +34,11 @@ const Auction = ({ auction }) => {
       </span>
     )
 
+  const onPlaceBid = () => {
+    setGlobalState('auction', auction)
+    setGlobalState('bidBox', 'scale-100')
+  }
+
   return (
     <div
       className="full overflow-hidden bg-gray-800 rounded-md shadow-xl 
@@ -60,12 +66,13 @@ const Auction = ({ auction }) => {
           </div>
         </div>
       </div>
-      <div
+      <button
         className="bg-green-500 w-full h-[40px] p-2 text-center
-    font-bold font-mono "
+        font-bold font-mono"
+        onClick={onPlaceBid}
       >
         Place a Bid
-      </div>
+      </button>
     </div>
   )
 }
