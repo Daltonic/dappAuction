@@ -4,18 +4,21 @@ import { useEffect } from 'react'
 import { loadAuction } from '../services/blockchain'
 import { setGlobalState, truncate, useGlobalState } from '../store'
 import Chat from '../components/Chat'
+import Countdown from '../components/Countdown'
+import Progress from '../components/Progress'
 
 const Nft = () => {
   const [auction] = useGlobalState('auction')
   const { id } = useParams()
   useEffect(async () => {
     await loadAuction(id)
-  })
+  }, [])
 
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
     setGlobalState('bidBox', 'scale-100')
   }
+
   return (
     <>
       <div
@@ -53,15 +56,18 @@ const Nft = () => {
             </div>
 
             <div className="lowercase">
-              <span className="font-bold">05h :20m :12s</span>
+              <span className="font-bold">
+                {auction?.duration > Date.now() ? (
+                  <Countdown timestamp={auction?.duration} />
+                ) : (
+                  '00:00:00'
+                )}
+              </span>
               <div
                 className="bg-gray-600 h-[8px] w-40 flex rounded-md
               items-center overflow-hidden mt-2"
               >
-                <div
-                  className="h-[80%] w-[60.5%] bg-green-500 flex justify-end
-                items-center rounded-md pr-[2px]"
-                ></div>
+                <Progress timestamp={auction?.duration} />
               </div>
             </div>
           </div>

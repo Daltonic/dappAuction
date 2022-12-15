@@ -1,6 +1,6 @@
-import Countdown from 'react-countdown'
 import { Link } from 'react-router-dom'
-import { setGlobalState } from '../store'
+import { countDown, setGlobalState } from '../store'
+import Countdown from './Countdown'
 
 const Artworks = ({ auctions, title, showOffer }) => {
   return (
@@ -31,19 +31,6 @@ const Artworks = ({ auctions, title, showOffer }) => {
 }
 
 const Auction = ({ auction, showOffer }) => {
-  const Completionist = () => (
-    <span className="font-bold text-red-600">Expired</span>
-  )
-
-  const renderer = ({ hours, minutes, seconds, completed }) =>
-    completed ? (
-      <Completionist />
-    ) : (
-      <span>
-        {hours}:{minutes}:{seconds}
-      </span>
-    )
-
   const onOffer = () => {
     setGlobalState('auction', auction)
     setGlobalState('offerModal', 'scale-100')
@@ -68,20 +55,17 @@ const Auction = ({ auction, showOffer }) => {
       </Link>
       <div
         className="shadow-lg shadow-gray-400 border-4 border-[#ffffff36] 
-      flex flex-row justify-between items-center text-gray-300 px-3"
+      flex flex-row justify-between items-center text-gray-300 px-2"
       >
-        <div className="p-2">
-          Current Bid
+        <div className="flex flex-col items-start py-2 px-1">
+          <span>Current Bid</span>
           <div className="font-bold text-center">{auction.price} ETH</div>
         </div>
-        <div className="p-2">
-          Auction End
+        <div className="flex flex-col items-start py-2 px-1">
+          <span>Auction End</span>
           <div className="font-bold text-center">
-            {auction.live && Date.now() < auction.duration ? (
-              <Countdown
-                date={Date.now() + auction.duration}
-                renderer={renderer}
-              />
+            {auction.duration > Date.now() ? (
+              <Countdown timestamp={auction.duration} />
             ) : (
               '00:00:00'
             )}

@@ -107,6 +107,11 @@ const loadAuctions = async () => {
     const contract = await getEthereumContract()
     const auctions = await contract.getLiveAuctions()
     setGlobalState('auctions', structuredAuctions(auctions))
+    setGlobalState(
+      'auction',
+      structuredAuctions(auctions).sort(() => 0.5 - Math.random())[0],
+    )
+    console.log(structuredAuctions(auctions))
   } catch (error) {
     reportError(error)
   }
@@ -143,7 +148,7 @@ const structuredAuctions = (auctions) =>
       seller: auction.seller.toLowerCase(),
       name: auction.name,
       description: auction.description,
-      duration: Number(auction.duration + '0000'),
+      duration: Number(auction.duration + '000'),
       image: auction.image,
       price: fromWei(auction.price),
       sold: auction.sold,

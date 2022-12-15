@@ -1,5 +1,4 @@
 const sharp = require('sharp')
-const { v4: uuid } = require('uuid')
 const { faker } = require('@faker-js/faker')
 const ipfsClient = require('ipfs-http-client')
 
