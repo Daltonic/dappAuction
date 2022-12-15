@@ -9,21 +9,27 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract Auction is ERC721URIStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private totalItems;
-    Counters.Counter private liveActions;
 
     address companyAcc;
     uint listingPrice = 0.02 ether;
     uint royalityFee;
+    mapping(uint => AuctionStruct) auctionedItem;
+    mapping(uint => bool) auctionedItemExist;
+    mapping(string => uint) existingURIs;
+    mapping(address => uint) auctionsOf;
+    mapping(uint => BidderStruct[]) biddersOf;
 
-    constructor(uint _royaltyFee) ERC721("Daltonic Tokens", "DAT"){
+    constructor(uint _royaltyFee) ERC721("Daltonic Tokens", "DAT") {
         companyAcc = msg.sender;
         royalityFee = _royaltyFee;
     }
 
-    struct TokenStruct {
-        uint tokenId;
-        address owner;
-        bool sold;
+    struct BidderStruct {
+        address bidder;
+        uint price;
+        uint timestamp;
+        bool refunded;
+        bool won;
     }
 
     struct AuctionStruct {
@@ -33,9 +39,11 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         uint tokenId;
         address seller;
         address owner;
+        address winner;
         uint price;
         bool sold;
         bool live;
+        bool biddable;
         uint duration;
     }
 
@@ -46,11 +54,6 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         uint price,
         bool sold
     );
-
-    mapping(uint => AuctionStruct) auctionedItem;
-    mapping(uint => bool) auctionedItemExist;
-    mapping(string => uint) existingURIs;
-    mapping(address => uint) auctionsOf;
 
     function getListingPrice() public view returns (uint) {
         return listingPrice;
@@ -123,30 +126,84 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
 
     function offerAuction(
         uint tokenId,
-        uint period
+        uint period,
+        bool biddable
     ) public {
         require(auctionedItem[tokenId].owner == msg.sender, "Unauthorized entity");
         require(!auctionedItem[tokenId].live, "Item is live on the market");
         require(period > 0, "Days must be greater than zero");
         
         auctionedItem[tokenId].live = true;
+        auctionedItem[tokenId].biddable = biddable;
         auctionedItem[tokenId].sold = false;
         auctionedItem[tokenId].duration = block.timestamp + (1 days * period);
         setApprovalForAll(address(this), true);
         IERC721(address(this)).transferFrom(msg.sender, address(this), tokenId);
     }
 
+    function placeBid(uint tokenId) public payable {
+        require(msg.value >= auctionedItem[tokenId].price, "Insufficient Amount");
+        require(auctionedItem[tokenId].duration > block.timestamp, "Auction not available");
+        require(auctionedItem[tokenId].biddable, "Auction only for bidding");
+
+        BidderStruct memory bidder;
+        bidder.bidder = msg.sender;
+        bidder.price = msg.value;
+        bidder.timestamp = block.timestamp;
+
+        biddersOf[tokenId].push(bidder);
+        auctionedItem[tokenId].price = msg.value;
+        auctionedItem[tokenId].winner = msg.sender;
+    }
+
+    function claimPrize(uint tokenId, uint bid) public {
+        // require(block.timestamp > auctionedItem[tokenId].duration, "Auction still available");
+        require(auctionedItem[tokenId].winner == msg.sender, "You are not the winner");
+        require(biddersOf[tokenId][bid].price >= auctionedItem[tokenId].price, "Insufficient Amount");
+
+        biddersOf[tokenId][bid].won = true;
+        uint price = auctionedItem[tokenId].price;
+        address seller = auctionedItem[tokenId].seller;
+
+        auctionedItem[tokenId].owner = msg.sender;
+        auctionedItem[tokenId].live = false;
+        auctionedItem[tokenId].sold = true;
+        auctionedItem[tokenId].duration = block.timestamp;
+        auctionsOf[msg.sender]++;
+        auctionsOf[seller]--;
+
+        uint royality = (price * royalityFee) / 100;
+        payTo(seller, (price - royality));
+        payTo(seller, royality);
+        IERC721(address(this)).transferFrom(address(this), msg.sender, tokenId);
+
+        performRefund(tokenId);
+    }
+
+    function performRefund(uint tokenId) internal {
+        for(uint i = 0; i < biddersOf[tokenId].length; i++) {
+            if(biddersOf[tokenId][i].bidder != msg.sender) {
+                biddersOf[tokenId][i].refunded = true;
+                payTo(biddersOf[tokenId][i].bidder, biddersOf[tokenId][i].price);
+            }else {
+                biddersOf[tokenId][i].won = true;
+            }
+            biddersOf[tokenId][i].timestamp = block.timestamp;
+        }
+    }
+
     function buyAuctionedItem(uint tokenId) public payable nonReentrant {
         require(msg.value >= auctionedItem[tokenId].price, "Insufficient Amount");
         require(auctionedItem[tokenId].duration > block.timestamp, "Auction not available");
+        require(!auctionedItem[tokenId].biddable, "Auction only for purchase");
 
         address seller = auctionedItem[tokenId].seller;
         auctionedItem[tokenId].owner = msg.sender;
         auctionedItem[tokenId].live = false;
         auctionedItem[tokenId].sold = true;
+        auctionedItem[tokenId].duration = block.timestamp;
         auctionsOf[msg.sender]++;
         auctionsOf[seller]--;
-        liveActions.increment();
 
         uint256 royality = (msg.value * royalityFee) / 100;
         payTo(seller, (msg.value - royality));
@@ -252,6 +309,10 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
                 index++;
             }
         }
+    }
+
+    function getBidders(uint tokenId) public view returns (BidderStruct[] memory) {
+        return biddersOf[tokenId];
     }
 
     function payTo(address to, uint amount) internal {
