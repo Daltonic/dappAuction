@@ -101,6 +101,20 @@ const offerItemOnMarket = async ({ tokenId, days }) => {
   }
 }
 
+const buyNFTItem = async ({ tokenId, price }) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const connectedAccount = getGlobalState('connectedAccount')
+    const contract = await getEthereumContract()
+    await contract.buyAuctionedItem(tokenId, {
+      from: connectedAccount,
+      value: toWei(price),
+    })
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const loadAuctions = async () => {
   try {
     if (!ethereum) return alert('Please install Metamask')
@@ -169,4 +183,5 @@ export {
   loadAuction,
   loadCollections,
   offerItemOnMarket,
+  buyNFTItem,
 }

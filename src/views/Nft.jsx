@@ -1,15 +1,18 @@
-import avatar from '../assets/images/avatar.png'
-import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
-import { loadAuction } from '../services/blockchain'
-import { setGlobalState, truncate, useGlobalState } from '../store'
 import Chat from '../components/Chat'
-import Countdown from '../components/Countdown'
+import { toast } from 'react-toastify'
+import { useParams } from 'react-router-dom'
 import Progress from '../components/Progress'
+import Countdown from '../components/Countdown'
+import avatar from '../assets/images/avatar.png'
+import { buyNFTItem, loadAuction } from '../services/blockchain'
+import { setGlobalState, truncate, useGlobalState } from '../store'
 
 const Nft = () => {
   const [auction] = useGlobalState('auction')
+  const [connectedAccount] = useGlobalState('connectedAccount')
   const { id } = useParams()
+
   useEffect(async () => {
     await loadAuction(id)
   }, [])
@@ -17,6 +20,21 @@ const Nft = () => {
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
     setGlobalState('bidBox', 'scale-100')
+  }
+
+  const handleNFTpurchase = async () => {
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await buyNFTItem(auction)
+          .then(() => resolve())
+          .catch(() => reject())
+      }),
+      {
+        pending: 'Processing...',
+        success: 'Purchase successful, will reflect within 30sec 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
   }
 
   return (
@@ -38,11 +56,13 @@ const Nft = () => {
         </div>
         <div className="">
           <div className="py-2">
-            <h1 className="font-bold text-lg mb-3">{auction?.name}</h1>
-            <p className="font-light text-sm">
-              Owned by:{' '}
+            <h1 className="font-bold text-lg mb-1">{auction?.name}</h1>
+            <p className="font-semibold text-sm">
               <span className="text-green-500">
-                {auction?.owner ? truncate(auction?.owner, 4, 4, 11) : null}
+                @
+                {auction?.owner == connectedAccount
+                  ? 'you'
+                  : truncate(auction?.owner, 4, 4, 11)}
               </span>
             </p>
             <p className="text-sm py-2">{auction?.description}</p>
@@ -72,24 +92,36 @@ const Nft = () => {
             </div>
           </div>
 
-          <div className="flex justify-start items-center space-x-2 mt-2">
-            <button
-              type="button"
-              className="bg-gray-600 shadow-md shadow-black hover:bg-green-700
-              md:text-xs p-2.5 rounded-sm cursor-pointer font-light"
-              onClick={onPlaceBid}
-            >
-              Place a Bid
-            </button>
-            <button
-              type="button"
-              className="shadow-md shadow-black text-white
-            bg-green-500 hover:bg-green-700 md:text-xs p-2.5
-              rounded-sm cursor-pointer font-light"
-            >
-              Claim NFT
-            </button>
-          </div>
+          {auction?.owner == connectedAccount ? null : (
+            <div className="flex justify-start items-center space-x-2 mt-2">
+              <button
+                type="button"
+                className="shadow-sm shadow-black text-white
+              bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
+                rounded-sm cursor-pointer font-light"
+                onClick={onPlaceBid}
+              >
+                Place a Bid
+              </button>
+              <button
+                type="button"
+                className="shadow-sm shadow-black text-white
+              bg-green-500 hover:bg-green-700 md:text-xs p-2.5
+                rounded-sm cursor-pointer font-light"
+              >
+                Claim NFT
+              </button>
+              <button
+                type="button"
+                className="shadow-sm shadow-black text-white
+              bg-red-500 hover:bg-red-700 md:text-xs p-2.5
+                rounded-sm cursor-pointer font-light"
+                onClick={handleNFTpurchase}
+              >
+                Buy NFT
+              </button>
+            </div>
+          )}
         </div>
 
         <Chat />
