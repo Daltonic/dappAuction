@@ -88,12 +88,12 @@ const createNftItem = async ({
   }
 }
 
-const offerItemOnMarket = async ({ tokenId, days }) => {
+const offerItemOnMarket = async ({ tokenId, days, biddable }) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.offerAuction(tokenId, days, {
+    await contract.offerAuction(tokenId, days, biddable, {
       from: connectedAccount,
     })
   } catch (error) {
@@ -125,7 +125,6 @@ const loadAuctions = async () => {
       'auction',
       structuredAuctions(auctions).sort(() => 0.5 - Math.random())[0],
     )
-    console.log(structuredAuctions(auctions))
   } catch (error) {
     reportError(error)
   }
@@ -165,6 +164,7 @@ const structuredAuctions = (auctions) =>
       duration: Number(auction.duration + '000'),
       image: auction.image,
       price: fromWei(auction.price),
+      biddable: auction.biddable,
       sold: auction.sold,
       live: auction.live,
     }))

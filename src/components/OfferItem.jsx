@@ -8,14 +8,19 @@ const OfferItem = () => {
   const [auction] = useGlobalState('auction')
   const [offerModal] = useGlobalState('offerModal')
   const [days, setDays] = useState('')
+  const [biddable, setBiddable] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!days) return
-
+    if (!days || !biddable) return
+    const params = {
+      days,
+      biddable: biddable == 'true',
+    }
+    
     await toast.promise(
       new Promise(async (resolve, reject) => {
-        await offerItemOnMarket({ ...auction, days })
+        await offerItemOnMarket({ ...auction, ...params })
           .then(async () => {
             closeModal()
             resolve()
@@ -24,7 +29,7 @@ const OfferItem = () => {
       }),
       {
         pending: 'Processing...',
-        success: 'Minting completed, will reflect within 30sec 👌',
+        success: 'Offered on Market, will reflect within 30sec 👌',
         error: 'Encountered error 🤯',
       },
     )
@@ -33,6 +38,7 @@ const OfferItem = () => {
   const closeModal = () => {
     setGlobalState('offerModal', 'scale-0')
     setDays('')
+    setBiddable('')
   }
 
   return (
@@ -79,6 +85,24 @@ const OfferItem = () => {
               value={days}
               required
             />
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <select
+              className="block w-full text-sm
+              text-slate-500 bg-transparent border-0
+              focus:outline-none focus:ring-0 px-4 py-2"
+              name="biddable"
+              onChange={(e) => setBiddable(e.target.value)}
+              value={biddable}
+              required
+            >
+              <option value="" hidden>
+                Select Biddability
+              </option>
+              <option value={true}>Yes</option>
+              <option value={false}>No</option>
+            </select>
           </div>
 
           <button

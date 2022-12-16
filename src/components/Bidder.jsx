@@ -16,10 +16,10 @@ const Bidder = () => {
       className="w-full text-white overflow-hidden bg-gray-800 rounded-md shadow-xl 
       shadow-black md:w-3/5 lg:w-2/5 md:mt-0 font-sans"
     >
-      <Link to={'/nft/' + auction.tokenId}>
+      <Link to={'/nft/' + auction?.tokenId}>
         <img
-          src={auction.image || picture0}
-          alt={auction.name}
+          src={auction?.image || picture0}
+          alt={auction?.name}
           className="object-cover w-full h-60"
         />
       </Link>
@@ -29,13 +29,13 @@ const Bidder = () => {
       >
         <div className="flex flex-col items-start py-2 px-1">
           <span>Current Bid</span>
-          <div className="font-bold text-center">{auction.price} ETH</div>
+          <div className="font-bold text-center">{auction?.price} ETH</div>
         </div>
         <div className="flex flex-col items-start py-2 px-1">
           <span>Auction End</span>
           <div className="font-bold text-center">
-            {auction.duration > Date.now() ? (
-              <Countdown timestamp={auction.duration} />
+            {auction?.live && auction?.duration > Date.now() ? (
+              <Countdown timestamp={auction?.duration} />
             ) : (
               '00:00:00'
             )}

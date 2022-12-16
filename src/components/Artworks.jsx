@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import { countDown, setGlobalState } from '../store'
+import { toast } from 'react-toastify'
+import { buyNFTItem } from '../services/blockchain'
+import { setGlobalState } from '../store'
 import Countdown from './Countdown'
 
 const Artworks = ({ auctions, title, showOffer }) => {
@@ -41,6 +43,21 @@ const Auction = ({ auction, showOffer }) => {
     setGlobalState('bidBox', 'scale-100')
   }
 
+  const handleNFTpurchase = async () => {
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await buyNFTItem(auction)
+          .then(() => resolve())
+          .catch(() => reject())
+      }),
+      {
+        pending: 'Processing...',
+        success: 'Purchase successful, will reflect within 30sec 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
+  }
+
   return (
     <div
       className="full overflow-hidden bg-gray-800 rounded-md shadow-xl 
@@ -64,7 +81,7 @@ const Auction = ({ auction, showOffer }) => {
         <div className="flex flex-col items-start py-2 px-1">
           <span>Auction End</span>
           <div className="font-bold text-center">
-            {auction.duration > Date.now() ? (
+            {auction.live && auction.duration > Date.now() ? (
               <Countdown timestamp={auction.duration} />
             ) : (
               '00:00:00'
@@ -90,13 +107,21 @@ const Auction = ({ auction, showOffer }) => {
             Offer Item
           </button>
         )
-      ) : (
+      ) : auction.biddable ? (
         <button
           className="bg-green-500 w-full h-[40px] p-2 text-center
           font-bold font-mono"
           onClick={onPlaceBid}
         >
           Place a Bid
+        </button>
+      ) : (
+        <button
+          className="bg-red-500 w-full h-[40px] p-2 text-center
+          font-bold font-mono"
+          onClick={handleNFTpurchase}
+        >
+          Buy NFT
         </button>
       )}
     </div>

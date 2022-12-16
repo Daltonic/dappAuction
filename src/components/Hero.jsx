@@ -1,4 +1,3 @@
-import { BsPlayFill } from 'react-icons/bs'
 import { BsArrowRightShort } from 'react-icons/bs'
 import { setGlobalState } from '../store'
 
@@ -33,9 +32,7 @@ const Hero = () => {
             className="text-white text-sm p-2 mx-5 flex flex-row 
                     justify-center items-center bg-[#ffffff36] rounded-sm w-auto"
           >
-            <BsPlayFill className="animate-pulse" />
-            <span className="px-1"> | </span>
-            Mint Token
+            Login Now
           </button>
         </div>
         <div className="flex items-center justify-between w-3/4 mt-5">

@@ -18,7 +18,7 @@ const Header = () => {
       hidden list-none flex-row justify-between 
       items-center flex-initial"
       >
-        <Link className="mx-4 cursor-pointer">Market</Link>
+        <Link to="/" className="mx-4 cursor-pointer">Market</Link>
         <Link to="/collections" className="mx-4 cursor-pointer">Collection</Link>
         <Link className="mx-4 cursor-pointer">Artists</Link>
         <Link className="mx-4 cursor-pointer">Community</Link>
