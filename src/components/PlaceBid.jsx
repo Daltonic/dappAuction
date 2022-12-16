@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { FaTimes } from 'react-icons/fa'
+import { toast } from 'react-toastify'
+import { bidOnNFT } from '../services/blockchain'
 import { setGlobalState, useGlobalState } from '../store'
 
 const PlaceBid = () => {
@@ -7,14 +9,30 @@ const PlaceBid = () => {
   const [bidBox] = useGlobalState('bidBox')
   const [price, setPrice] = useState('')
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!price) return
-  }
-
   const closeModal = () => {
     setGlobalState('bidBox', 'scale-0')
     setPrice('')
+  }
+
+  const handleBidPlacement = async (e) => {
+    e.preventDefault()
+    if (!price) return
+
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await bidOnNFT({ ...auction, price })
+          .then(() => {
+            resolve()
+            closeModal()
+          })
+          .catch(() => reject())
+      }),
+      {
+        pending: 'Processing...',
+        success: 'Bid placed successful, will reflect within 30sec 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
   }
 
   return (
@@ -24,9 +42,11 @@ const PlaceBid = () => {
         transition-transform duration-300 ${bidBox}`}
     >
       <div className="bg-[#151c25] shadow-xl shadow-[#25bd9c] rounded-xl w-11/12 md:w-2/5 h-7/12 p-6">
-        <form onSubmit={handleSubmit} className="flex flex-col">
+        <form onSubmit={handleBidPlacement} className="flex flex-col">
           <div className="flex flex-row justify-between items-center">
-            <p className="font-semibold text-gray-400 italic">{auction?.name}</p>
+            <p className="font-semibold text-gray-400 italic">
+              {auction?.name}
+            </p>
             <button
               type="button"
               onClick={closeModal}
