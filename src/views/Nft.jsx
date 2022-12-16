@@ -1,20 +1,22 @@
 import { useEffect } from 'react'
 import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
+import Identicons from 'react-identicons'
 import { useParams } from 'react-router-dom'
 import Progress from '../components/Progress'
 import Countdown from '../components/Countdown'
-import avatar from '../assets/images/avatar.png'
-import { buyNFTItem, loadAuction } from '../services/blockchain'
 import { setGlobalState, truncate, useGlobalState } from '../store'
+import { buyNFTItem, getBidders, loadAuction } from '../services/blockchain'
 
 const Nft = () => {
   const [auction] = useGlobalState('auction')
+  const [bidders] = useGlobalState('bidders')
   const [connectedAccount] = useGlobalState('connectedAccount')
   const { id } = useParams()
 
   useEffect(async () => {
     await loadAuction(id)
+    await getBidders(id)
   }, [])
 
   const onPlaceBid = () => {
@@ -67,7 +69,19 @@ const Nft = () => {
             </p>
             <p className="text-sm py-2">{auction?.description}</p>
           </div>
-          <Bidders />
+
+          <div className="flex flex-col">
+            <span>Top Bidders</span>
+            <div className="h-[calc(100vh_-_40.5rem)] overflow-y-auto">
+              {bidders.map((bid, i) => (
+                <Bidders
+                  key={i}
+                  bid={bid}
+                  winner={bid.bidder == auction?.winner}
+                />
+              ))}
+            </div>
+          </div>
 
           <div className="flex justify-between items-center py-5 ">
             <div>
@@ -94,32 +108,31 @@ const Nft = () => {
 
           {auction?.owner == connectedAccount ? null : (
             <div className="flex justify-start items-center space-x-2 mt-2">
-              <button
-                type="button"
-                className="shadow-sm shadow-black text-white
-              bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
-                rounded-sm cursor-pointer font-light"
-                onClick={onPlaceBid}
-              >
-                Place a Bid
-              </button>
-              <button
-                type="button"
-                className="shadow-sm shadow-black text-white
-              bg-green-500 hover:bg-green-700 md:text-xs p-2.5
-                rounded-sm cursor-pointer font-light"
-              >
-                Claim NFT
-              </button>
-              <button
-                type="button"
-                className="shadow-sm shadow-black text-white
-              bg-red-500 hover:bg-red-700 md:text-xs p-2.5
-                rounded-sm cursor-pointer font-light"
-                onClick={handleNFTpurchase}
-              >
-                Buy NFT
-              </button>
+              {auction?.biddable ? (
+                <>
+                  {auction?.live && auction?.duration > Date.now() ? (
+                    <button
+                      type="button"
+                      className="shadow-sm shadow-black text-white
+                    bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
+                      rounded-sm cursor-pointer font-light"
+                      onClick={onPlaceBid}
+                    >
+                      Place a Bid
+                    </button>
+                  ) : null}
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="shadow-sm shadow-black text-white
+                bg-red-500 hover:bg-red-700 md:text-xs p-2.5
+                  rounded-sm cursor-pointer font-light"
+                  onClick={handleNFTpurchase}
+                >
+                  Buy NFT
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -130,21 +143,32 @@ const Nft = () => {
   )
 }
 
-const Bidders = () => (
-  <div className="flex flex-row justify-between items-center">
-    <div>
-      <img src={avatar} alt="" className="flex flex-shrink h-5 w-5" />
-      highest Bid by
-      <span className="font-bold text-base px-1">lina foxxx</span>
-      <p>0.150ETH</p>
+const Bidders = ({ bid, winner }) => (
+  <div className="flex justify-between items-center">
+    <div className="flex justify-start items-center my-1 space-x-1">
+      <Identicons
+        className="h-5 w-5 object-contain bg-gray-800 rounded-full"
+        size={18}
+        string={bid.bidder}
+      />
+      <span className="font-medium text-sm mr-3">
+        {truncate(bid.bidder, 4, 4, 11)}
+      </span>
+      <span className="text-green-400 font-medium text-sm">
+        {bid.price} ETH
+      </span>
     </div>
-    <div className="flex flex-row items-center">
-      <p>other Bids :</p>
-      <div className="flex flex-wrap sm:flex-wrap md:flex-wrap h-5 w-8 px-1">
-        <img src={avatar} alt="" />
-        <img src={avatar} alt="" />
-      </div>
-    </div>
+
+    {winner ? (
+      <button
+        type="button"
+        className="shadow-sm shadow-black text-white
+      bg-green-500 hover:bg-green-700 md:text-xs p-1
+        rounded-sm text-sm cursor-pointer font-light"
+      >
+        Claim Prize
+      </button>
+    ) : null}
   </div>
 )
 

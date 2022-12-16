@@ -155,6 +155,17 @@ const loadAuction = async (id) => {
   }
 }
 
+const getBidders = async (id) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const contract = await getEthereumContract()
+    const bidders = await contract.getBidders(id)
+    setGlobalState('bidders', structuredBidders(bidders))
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const loadCollections = async () => {
   try {
     if (!ethereum) return alert('Please install Metamask')
@@ -173,6 +184,7 @@ const structuredAuctions = (auctions) =>
       tokenId: auction.tokenId.toNumber(),
       owner: auction.owner.toLowerCase(),
       seller: auction.seller.toLowerCase(),
+      winner: auction.winner.toLowerCase(),
       name: auction.name,
       description: auction.description,
       duration: Number(auction.duration + '000'),
@@ -183,6 +195,17 @@ const structuredAuctions = (auctions) =>
       live: auction.live,
     }))
     .reverse()
+
+const structuredBidders = (bidders) =>
+  bidders
+    .map((bidder) => ({
+      timestamp: Number(bidder.timestamp + '000'),
+      bidder: bidder.bidder.toLowerCase(),
+      price: fromWei(bidder.price),
+      refunded: bidder.refunded,
+      won: bidder.won,
+    }))
+    .sort((a, b) => b.price - a.price)
 
 const reportError = (error) => {
   console.log(error.message)
@@ -199,4 +222,5 @@ export {
   offerItemOnMarket,
   buyNFTItem,
   bidOnNFT,
+  getBidders,
 }
