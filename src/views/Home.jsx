@@ -1,4 +1,5 @@
 import Artworks from '../components/Artworks'
+import Empty from '../components/Empty'
 import Main from '../components/Main'
 import { useGlobalState } from '../store'
 
@@ -7,7 +8,7 @@ const Home = () => {
   return (
     <div>
       <Main />
-      {auctions.length > 0 ? <Artworks auctions={auctions} /> : null}
+      {auctions.length > 0 ? <Artworks auctions={auctions} /> : <Empty />}
     </div>
   )
 }

@@ -23,7 +23,7 @@ function App() {
 
   return (
     <div
-      className="relative min-h-screen bg-gradient-to-t from-gray-800 bg-repeat
+      className="min-h-screen bg-gradient-to-t from-gray-800 bg-repeat
     via-[#25bd9c] to-gray-900 bg-center subpixel-antialiased"
     >
       <Header />

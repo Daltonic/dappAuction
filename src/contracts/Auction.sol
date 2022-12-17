@@ -159,7 +159,6 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     function claimPrize(uint tokenId, uint bid) public {
         // require(block.timestamp > auctionedItem[tokenId].duration, "Auction still available");
         require(auctionedItem[tokenId].winner == msg.sender, "You are not the winner");
-        require(biddersOf[tokenId][bid].price >= auctionedItem[tokenId].price, "Insufficient Amount");
 
         biddersOf[tokenId][bid].won = true;
         uint price = auctionedItem[tokenId].price;

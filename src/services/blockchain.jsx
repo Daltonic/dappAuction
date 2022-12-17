@@ -129,6 +129,19 @@ const bidOnNFT = async ({ tokenId, price }) => {
   }
 }
 
+const claimPrize = async ({ tokenId, id }) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const connectedAccount = getGlobalState('connectedAccount')
+    const contract = await getEthereumContract()
+    await contract.claimPrize(tokenId, id, {
+      from: connectedAccount,
+    })
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const loadAuctions = async () => {
   try {
     if (!ethereum) return alert('Please install Metamask')
@@ -223,4 +236,5 @@ export {
   buyNFTItem,
   bidOnNFT,
   getBidders,
+  claimPrize,
 }

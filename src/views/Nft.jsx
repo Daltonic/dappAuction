@@ -6,7 +6,12 @@ import { useParams } from 'react-router-dom'
 import Progress from '../components/Progress'
 import Countdown from '../components/Countdown'
 import { setGlobalState, truncate, useGlobalState } from '../store'
-import { buyNFTItem, getBidders, loadAuction } from '../services/blockchain'
+import {
+  buyNFTItem,
+  claimPrize,
+  getBidders,
+  loadAuction,
+} from '../services/blockchain'
 
 const Nft = () => {
   const [auction] = useGlobalState('auction')
@@ -75,8 +80,10 @@ const Nft = () => {
             <div className="h-[calc(100vh_-_40.5rem)] overflow-y-auto">
               {bidders.map((bid, i) => (
                 <Bidders
+                  id={i}
                   key={i}
                   bid={bid}
+                  tokenId={auction?.tokenId}
                   winner={bid.bidder == auction?.winner}
                 />
               ))}
@@ -143,33 +150,51 @@ const Nft = () => {
   )
 }
 
-const Bidders = ({ bid, winner }) => (
-  <div className="flex justify-between items-center">
-    <div className="flex justify-start items-center my-1 space-x-1">
-      <Identicons
-        className="h-5 w-5 object-contain bg-gray-800 rounded-full"
-        size={18}
-        string={bid.bidder}
-      />
-      <span className="font-medium text-sm mr-3">
-        {truncate(bid.bidder, 4, 4, 11)}
-      </span>
-      <span className="text-green-400 font-medium text-sm">
-        {bid.price} ETH
-      </span>
-    </div>
+const Bidders = ({ bid, winner, id, tokenId }) => {
+  const handlePrizeClaim = async () => {
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await claimPrize({ tokenId, id })
+          .then(() => resolve())
+          .catch(() => reject())
+      }),
+      {
+        pending: 'Processing...',
+        success: 'Price claim successful, will reflect within 30sec 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
+  }
 
-    {winner ? (
-      <button
-        type="button"
-        className="shadow-sm shadow-black text-white
+  return (
+    <div className="flex justify-between items-center">
+      <div className="flex justify-start items-center my-1 space-x-1">
+        <Identicons
+          className="h-5 w-5 object-contain bg-gray-800 rounded-full"
+          size={18}
+          string={bid.bidder}
+        />
+        <span className="font-medium text-sm mr-3">
+          {truncate(bid.bidder, 4, 4, 11)}
+        </span>
+        <span className="text-green-400 font-medium text-sm">
+          {bid.price} ETH
+        </span>
+      </div>
+
+      {winner && !bid.won ? (
+        <button
+          type="button"
+          className="shadow-sm shadow-black text-white
       bg-green-500 hover:bg-green-700 md:text-xs p-1
         rounded-sm text-sm cursor-pointer font-light"
-      >
-        Claim Prize
-      </button>
-    ) : null}
-  </div>
-)
+          onClick={handlePrizeClaim}
+        >
+          Claim Prize
+        </button>
+      ) : null}
+    </div>
+  )
+}
 
 export default Nft

@@ -2,27 +2,25 @@ import React from 'react'
 
 const Footer = () => {
   return (
-    <div className=" absolute bottom-0 w-full flex sm:flex-row flex-col justify-between items-center my-4">
-      <div className="lg:hidden flex flex-1 justify-evenly items-center flex-wrap sm:mt-0 mt-5 w-full">
-        <p className="text-white text-base text-center mx-2 cursor-pointer">
+    <div className="w-4/5 flex sm:flex-row flex-col justify-between items-center my-4 mx-auto">
+      <div className="hidden sm:flex flex-1 justify-start items-center space-x-12">
+        <p className="text-white text-base text-center cursor-pointer">
           Market
         </p>
-        <p className="text-white text-base text-center mx-2 cursor-pointer">
+        <p className="text-white text-base text-center cursor-pointer">
           Artist
         </p>
-        <p className="text-white text-base text-center mx-2 cursor-pointer">
+        <p className="text-white text-base text-center cursor-pointer">
           Features
         </p>
-        <p className="text-white text-base text-center mx-2 cursor-pointer">
+        <p className="text-white text-base text-center cursor-pointer">
           Community
         </p>
       </div>
 
-      <div className="flex flex-[0.25] justify-center items-center">
-        <p className="text-white text-right text-xs">
-          &copy;2022 All rights reserved
-        </p>
-      </div>
+      <p className="text-white text-right text-xs">
+        &copy;2022 All rights reserved
+      </p>
     </div>
   )
 }
