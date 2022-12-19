@@ -1,13 +1,16 @@
+import './index.css'
+import App from './App'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter } from 'react-router-dom'
-import './index.css'
 import 'react-toastify/dist/ReactToastify.css'
-import App from './App'
+import { initCometChat } from './services/chat'
+import { BrowserRouter } from 'react-router-dom'
 
-ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
-  document.getElementById('root'),
-)
+initCometChat().then(() => {
+  ReactDOM.render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
+    document.getElementById('root'),
+  )
+})

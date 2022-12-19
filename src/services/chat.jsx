@@ -25,35 +25,40 @@ const loginWithCometChat = async () => {
   const authKey = CONSTANTS.Auth_Key
   const UID = getGlobalState('connectedAccount')
 
-  await CometChat.login(UID, authKey)
-    .then((user) => setGlobalState('currentUser', user))
-    .catch((error) => console.log(JSON.stringify(error)))
+  return new Promise(async (resolve, reject) => {
+    await CometChat.login(UID, authKey)
+      .then((user) => resolve(user))
+      .catch((error) => reject(error))
+  })
 }
 
-const signUpWithCometChat = async (name) => {
+const signUpWithCometChat = async () => {
   const authKey = CONSTANTS.Auth_Key
   const UID = getGlobalState('connectedAccount')
   const user = new CometChat.User(UID)
 
-  user.setName(name)
-  return await CometChat.createUser(user, authKey)
-    .then((user) => user)
-    .catch((error) => error)
+  user.setName(UID)
+  return new Promise(async (resolve, reject) => {
+    await CometChat.createUser(user, authKey)
+      .then((user) => resolve(user))
+      .catch((error) => reject(error))
+  })
 }
 
 const logOutWithCometChat = async () => {
-  await CometChat.logout()
-    .then(() => {
-      setGlobalState('currentUser', null)
-      console.log('Logged Out Successfully')
-    })
-    .catch((error) => console.log(error))
+  return new Promise(async (resolve, reject) => {
+    await CometChat.logout()
+      .then(() => resolve())
+      .catch(() => reject())
+  })
 }
 
 const checkAuthState = async () => {
-  await CometChat.getLoggedinUser()
-    .then((user) => setGlobalState('currentUser', user))
-    .catch((error) => console.log(error))
+  return new Promise(async (resolve, reject) => {
+    await CometChat.getLoggedinUser()
+      .then((user) => resolve(user))
+      .catch((error) => reject(error))
+  })
 }
 
 const createNewGroup = async (GUID, groupName) => {
@@ -61,27 +66,30 @@ const createNewGroup = async (GUID, groupName) => {
   const password = ''
   const group = new CometChat.Group(GUID, groupName, groupType, password)
 
-  await CometChat.createGroup(group)
-    .then((group) => setGlobalState('group', group))
-    .catch((error) => console.log(error))
+  return new Promise(async (resolve, reject) => {
+    await CometChat.createGroup(group)
+      .then((group) => resolve(group))
+      .catch((error) => reject(error))
+  })
 }
 
 const getGroup = async (GUID) => {
-  return await CometChat.getGroup(GUID)
-    .then((group) => {
-      setGlobalState('group', group)
-      return group
-    })
-    .catch((error) => error)
+  return new Promise(async (resolve, reject) => {
+    await CometChat.getGroup(GUID)
+      .then((group) => resolve(group))
+      .catch((error) => reject(error))
+  })
 }
 
 const joinGroup = async (GUID) => {
   const groupType = CometChat.GROUP_TYPE.PUBLIC
   const password = ''
 
-  await CometChat.joinGroup(GUID, groupType, password)
-    .then((group) => getGroup(group.guid))
-    .catch((error) => console.log(error))
+  return new Promise(async (resolve, reject) => {
+    await CometChat.joinGroup(GUID, groupType, password)
+      .then((group) => resolve(group))
+      .catch((error) => reject(error))
+  })
 }
 
 const getMessages = async (UID) => {
@@ -91,10 +99,12 @@ const getMessages = async (UID) => {
     .setLimit(limit)
     .build()
 
-  return await messagesRequest
-    .fetchPrevious()
-    .then((messages) => messages)
-    .catch((error) => error)
+  return new Promise(async (resolve, reject) => {
+    await messagesRequest
+      .fetchPrevious()
+      .then((messages) => resolve(messages))
+      .catch((error) => reject(error))
+  })
 }
 
 const sendMessage = async (receiverID, messageText) => {
@@ -104,10 +114,11 @@ const sendMessage = async (receiverID, messageText) => {
     messageText,
     receiverType,
   )
-
-  return await CometChat.sendMessage(textMessage)
-    .then((message) => message)
-    .catch((error) => error)
+  return new Promise(async (resolve, reject) => {
+    await CometChat.sendMessage(textMessage)
+      .then((message) => resolve(message))
+      .catch((error) => reject(error))
+  })
 }
 
 export {

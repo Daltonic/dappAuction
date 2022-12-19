@@ -9,9 +9,10 @@ import CreateNFT from './components/CreateNFT'
 import { ToastContainer } from 'react-toastify'
 import { Route, Routes } from 'react-router-dom'
 import { isWallectConnected, loadAuctions } from './services/blockchain'
-import { useGlobalState } from './store'
+import { setGlobalState, useGlobalState } from './store'
 import OfferItem from './components/OfferItem'
 import ChangePrice from './components/ChangePrice'
+import { checkAuthState } from './services/chat'
 
 function App() {
   const [loaded, setLoaded] = useState(false)
@@ -19,6 +20,9 @@ function App() {
   useEffect(async () => {
     await isWallectConnected()
     await loadAuctions().finally(() => setLoaded(true))
+    await checkAuthState()
+      .then((user) => setGlobalState('currentUser', user))
+      .catch((error) => setGlobalState('currentUser', null))
     console.log('Blockchain Loaded')
   }, [])
 

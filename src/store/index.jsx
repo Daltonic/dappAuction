@@ -10,6 +10,7 @@ const { getGlobalState, useGlobalState, setGlobalState } = createGlobalState({
   bidders: [],
   auctions: [],
   auction: null,
+  currentUser: null,
 })
 
 const truncate = (text, startChars, endChars, maxLength) => {
