@@ -42,33 +42,20 @@ describe('Contracts', () => {
         })
     })
 
-    it('Should confirm NFT Auction Creation', async () => {
+    it('Should confirm NFT Auction Price Change', async () => {
+      result = await contract.getAuction(tokenId)
+      expect(result.price).to.be.equal(price)
+
+      await contract.changePrice(tokenId, newPrice)
+
+      result = await contract.getAuction(tokenId)
+      expect(result.price).to.be.equal(newPrice)
+    })
+
+    it('Should confirm NFT Auction Listing', async () => {
       result = await contract.getMyAuctions({ from: seller.address })
       expect(result).to.have.lengthOf(1)
     })
-
-    // it('Should confirm Live NFT Auction', async () => {
-    //   result = await contract.getLiveAuctions()
-    //   expect(result).to.have.lengthOf(0)
-
-    //   await contract.offerAuction(tokenId, !biddable, secs, 0, 0, 0, {
-    //     from: seller.address,
-    //   })
-
-    //   result = await contract.getLiveAuctions()
-    //   expect(result).to.have.lengthOf(1)
-
-    //   await (async () => {
-    //     await new Promise((resolve) =>
-    //       setTimeout(() => {
-    //         resolve()
-    //       }, (secs + 5) * 1000),
-    //     )
-    //   })()
-
-    //   result = await contract.getLiveAuctions()
-    //   expect(result).to.have.lengthOf(0)
-    // })
 
     it('Should confirm NFT Auction Purchase', async () => {
       result = await contract.getAuction(tokenId)

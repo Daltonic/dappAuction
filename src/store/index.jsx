@@ -4,6 +4,7 @@ const { getGlobalState, useGlobalState, setGlobalState } = createGlobalState({
   boxModal: 'scale-0',
   bidBox: 'scale-0',
   offerModal: 'scale-0',
+  priceModal: 'scale-0',
   connectedAccount: '',
   collections: [],
   bidders: [],

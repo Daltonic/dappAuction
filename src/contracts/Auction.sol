@@ -66,14 +66,13 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
 
     function changePrice(uint tokenId, uint price) public {
         require(
-            auctionedItem[tokenId].seller == msg.sender,
+            auctionedItem[tokenId].owner == msg.sender,
             "Unauthorized entity"
         );
         require(
-            !auctionedItem[tokenId].sold,
-            "Item already offered on the market"
+            getTimestamp(0, 0, 0, 0) > auctionedItem[tokenId].duration,
+            "Auction still Live"
         );
-        require(!auctionedItem[tokenId].live, "Item is live on the market");
         require(price > 0 ether, "Price must be greater than zero");
 
         auctionedItem[tokenId].price = price;
@@ -181,7 +180,7 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
     function claimPrize(uint tokenId, uint bid) public {
         require(
             getTimestamp(0, 0, 0, 0) > auctionedItem[tokenId].duration,
-            "Auction still available"
+            "Auction still Live"
         );
         require(
             auctionedItem[tokenId].winner == msg.sender,

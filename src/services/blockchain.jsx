@@ -91,6 +91,21 @@ const createNftItem = async ({
   }
 }
 
+const updatePrice = async ({ tokenId, price }) => {
+  try {
+    if (!ethereum) return alert('Please install Metamask')
+    const connectedAccount = getGlobalState('connectedAccount')
+    const contract = await getEthereumContract()
+    tx = await contract.changePrice(tokenId, toWei(price), {
+      from: connectedAccount,
+    })
+    await tx.wait()
+    await loadAuctions()
+  } catch (error) {
+    reportError(error)
+  }
+}
+
 const offerItemOnMarket = async ({
   tokenId,
   biddable,
@@ -258,4 +273,5 @@ export {
   bidOnNFT,
   getBidders,
   claimPrize,
+  updatePrice,
 }

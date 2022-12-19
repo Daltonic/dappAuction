@@ -11,6 +11,7 @@ import { Route, Routes } from 'react-router-dom'
 import { isWallectConnected, loadAuctions } from './services/blockchain'
 import { useGlobalState } from './store'
 import OfferItem from './components/OfferItem'
+import ChangePrice from './components/ChangePrice'
 
 function App() {
   const [loaded, setLoaded] = useState(false)
@@ -39,6 +40,7 @@ function App() {
         <>
           <PlaceBid />
           <OfferItem />
+          <ChangePrice />
         </>
       ) : null}
       <Footer />
