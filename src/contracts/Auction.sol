@@ -193,16 +193,16 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         address seller = auctionedItem[tokenId].seller;
 
         auctionedItem[tokenId].winner = address(0);
-        auctionedItem[tokenId].owner = msg.sender;
         auctionedItem[tokenId].live = false;
         auctionedItem[tokenId].sold = true;
         auctionedItem[tokenId].bids = 0;
         auctionedItem[tokenId].duration = getTimestamp(0, 0, 0, 0);
 
         uint royality = (price * royalityFee) / 100;
-        payTo(seller, (price - royality));
+        payTo(auctionedItem[tokenId].owner, (price - royality));
         payTo(seller, royality);
         IERC721(address(this)).transferFrom(address(this), msg.sender, tokenId);
+        auctionedItem[tokenId].owner = msg.sender;
 
         performRefund(tokenId);
     }
@@ -220,6 +220,8 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
             }
             biddersOf[tokenId][i].timestamp = getTimestamp(0, 0, 0, 0);
         }
+
+        delete biddersOf[tokenId];
     }
 
     function buyAuctionedItem(uint tokenId) public payable nonReentrant {
@@ -234,20 +236,21 @@ contract Auction is ERC721URIStorage, ReentrancyGuard {
         require(!auctionedItem[tokenId].biddable, "Auction only for purchase");
 
         address seller = auctionedItem[tokenId].seller;
-        auctionedItem[tokenId].owner = msg.sender;
         auctionedItem[tokenId].live = false;
         auctionedItem[tokenId].sold = true;
         auctionedItem[tokenId].bids = 0;
         auctionedItem[tokenId].duration = getTimestamp(0, 0, 0, 0);
 
         uint royality = (msg.value * royalityFee) / 100;
-        payTo(seller, (msg.value - royality));
+        payTo(auctionedItem[tokenId].owner, (msg.value - royality));
         payTo(seller, royality);
         IERC721(address(this)).transferFrom(
             address(this),
             msg.sender,
             auctionedItem[tokenId].tokenId
         );
+
+        auctionedItem[tokenId].owner = msg.sender;
     }
 
     function getAuction(uint id) public view returns (AuctionStruct memory) {

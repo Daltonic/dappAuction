@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
+import Empty from '../components/Empty'
 import { useGlobalState } from '../store'
 import Artworks from '../components/Artworks'
 import { loadCollections } from '../services/blockchain'
-import Empty from '../components/Empty'
 
 const Collections = () => {
   const [collections] = useGlobalState('collections')

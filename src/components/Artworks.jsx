@@ -112,6 +112,7 @@ const Auction = ({ auction, showOffer }) => {
           className="bg-green-500 w-full h-[40px] p-2 text-center
           font-bold font-mono"
           onClick={onPlaceBid}
+          disabled={Date.now() > auction.duration}
         >
           Place a Bid
         </button>
@@ -120,6 +121,7 @@ const Auction = ({ auction, showOffer }) => {
           className="bg-red-500 w-full h-[40px] p-2 text-center
           font-bold font-mono"
           onClick={handleNFTpurchase}
+          disabled={Date.now() > auction.duration}
         >
           Buy NFT
         </button>

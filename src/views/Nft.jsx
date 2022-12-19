@@ -3,7 +3,6 @@ import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
 import Identicons from 'react-identicons'
 import { useParams } from 'react-router-dom'
-import Progress from '../components/Progress'
 import Countdown from '../components/Countdown'
 import { setGlobalState, truncate, useGlobalState } from '../store'
 import {
@@ -109,12 +108,6 @@ const Nft = () => {
                   '00:00:00'
                 )}
               </span>
-              <div
-                className="bg-gray-600 h-[8px] w-40 flex rounded-md
-              items-center overflow-hidden mt-2"
-              >
-                <Progress timestamp={auction?.duration} />
-              </div>
             </div>
           </div>
 

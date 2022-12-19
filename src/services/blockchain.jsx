@@ -142,6 +142,7 @@ const bidOnNFT = async ({ tokenId, price }) => {
 
     await tx.wait()
     await getBidders(tokenId)
+    await loadAuction(tokenId)
   } catch (error) {
     reportError(error)
   }
