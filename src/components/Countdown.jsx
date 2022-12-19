@@ -18,7 +18,9 @@ const Countdown = ({ timestamp }) => {
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
 
-  return (
+  return Date.now() > timestamp ? (
+    '00:00:00'
+  ) : (
     <div>
       {days}d : {hours}h : {minutes}m : {seconds}s
     </div>

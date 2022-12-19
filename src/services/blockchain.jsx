@@ -6,6 +6,7 @@ import { ethers } from 'ethers'
 const { ethereum } = window
 const ContractAddress = address.address
 const ContractAbi = abi.abi
+let tx
 
 const toWei = (num) => ethers.utils.parseEther(num.toString())
 const fromWei = (num) => ethers.utils.formatEther(num)
@@ -72,7 +73,7 @@ const createNftItem = async ({
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.createAuction(
+    tx = await contract.createAuction(
       name,
       description,
       image,
@@ -83,19 +84,30 @@ const createNftItem = async ({
         value: toWei(0.02),
       },
     )
+    await tx.wait()
+    await loadAuctions()
   } catch (error) {
     reportError(error)
   }
 }
 
-const offerItemOnMarket = async ({ tokenId, days, biddable }) => {
+const offerItemOnMarket = async ({
+  tokenId,
+  biddable,
+  sec,
+  min,
+  hour,
+  day,
+}) => {
   try {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.offerAuction(tokenId, days, biddable, {
+    tx = await contract.offerAuction(tokenId, biddable, sec, min, hour, day, {
       from: connectedAccount,
     })
+    await tx.wait()
+    await loadAuctions()
   } catch (error) {
     reportError(error)
   }
@@ -106,10 +118,13 @@ const buyNFTItem = async ({ tokenId, price }) => {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.buyAuctionedItem(tokenId, {
+    tx = await contract.buyAuctionedItem(tokenId, {
       from: connectedAccount,
       value: toWei(price),
     })
+    await tx.wait()
+    await loadAuctions()
+    await loadAuction(tokenId)
   } catch (error) {
     reportError(error)
   }
@@ -120,10 +135,13 @@ const bidOnNFT = async ({ tokenId, price }) => {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.placeBid(tokenId, {
+    tx = await contract.placeBid(tokenId, {
       from: connectedAccount,
       value: toWei(price),
     })
+
+    await tx.wait()
+    await getBidders(tokenId)
   } catch (error) {
     reportError(error)
   }
@@ -134,9 +152,11 @@ const claimPrize = async ({ tokenId, id }) => {
     if (!ethereum) return alert('Please install Metamask')
     const connectedAccount = getGlobalState('connectedAccount')
     const contract = await getEthereumContract()
-    await contract.claimPrize(tokenId, id, {
+    tx = await contract.claimPrize(tokenId, id, {
       from: connectedAccount,
     })
+    await tx.wait()
+    await getBidders(tokenId)
   } catch (error) {
     reportError(error)
   }

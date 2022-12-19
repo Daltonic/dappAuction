@@ -69,26 +69,31 @@ const Nft = () => {
                 @
                 {auction?.owner == connectedAccount
                   ? 'you'
-                  : truncate(auction?.owner, 4, 4, 11)}
+                  : auction?.owner
+                  ? truncate(auction?.owner, 4, 4, 11)
+                  : ''}
               </span>
             </p>
             <p className="text-sm py-2">{auction?.description}</p>
           </div>
 
-          <div className="flex flex-col">
-            <span>Top Bidders</span>
-            <div className="h-[calc(100vh_-_40.5rem)] overflow-y-auto">
-              {bidders.map((bid, i) => (
-                <Bidders
-                  id={i}
-                  key={i}
-                  bid={bid}
-                  tokenId={auction?.tokenId}
-                  winner={bid.bidder == auction?.winner}
-                />
-              ))}
+          {bidders.length > 0 ? (
+            <div className="flex flex-col">
+              <span>Top Bidders</span>
+              <div className="h-[calc(100vh_-_40.5rem)] overflow-y-auto">
+                {bidders.map((bid, i) => (
+                  <Bidders
+                    id={i}
+                    key={i}
+                    bid={bid}
+                    tokenId={auction?.tokenId}
+                    winner={bid.bidder == auction?.winner}
+                    timestamp={auction?.duration}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div className="flex justify-between items-center py-5 ">
             <div>
@@ -150,7 +155,7 @@ const Nft = () => {
   )
 }
 
-const Bidders = ({ bid, winner, id, tokenId }) => {
+const Bidders = ({ bid, winner, id, tokenId, timestamp }) => {
   const handlePrizeClaim = async () => {
     await toast.promise(
       new Promise(async (resolve, reject) => {
@@ -182,12 +187,12 @@ const Bidders = ({ bid, winner, id, tokenId }) => {
         </span>
       </div>
 
-      {winner && !bid.won ? (
+      {winner && !bid.won && Date.now() > timestamp ? (
         <button
           type="button"
           className="shadow-sm shadow-black text-white
-      bg-green-500 hover:bg-green-700 md:text-xs p-1
-        rounded-sm text-sm cursor-pointer font-light"
+        bg-green-500 hover:bg-green-700 md:text-xs p-1
+          rounded-sm text-sm cursor-pointer font-light"
           onClick={handlePrizeClaim}
         >
           Claim Prize

@@ -7,17 +7,40 @@ import { setGlobalState, useGlobalState } from '../store'
 const OfferItem = () => {
   const [auction] = useGlobalState('auction')
   const [offerModal] = useGlobalState('offerModal')
-  const [days, setDays] = useState('')
+  const [period, setPeriod] = useState('')
   const [biddable, setBiddable] = useState('')
+  const [timeline, setTimeline] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!days || !biddable) return
+    if (!period || !biddable || !timeline) return
+
     const params = {
-      days,
       biddable: biddable == 'true',
     }
-    
+
+    if (timeline == 'sec') {
+      params.sec = Number(period)
+      params.min = 0
+      params.hour = 0
+      params.day = 0
+    } else if (timeline == 'min') {
+      params.sec = 0
+      params.min = Number(period)
+      params.hour = 0
+      params.day = 0
+    } else if (sec == 'hour') {
+      params.sec = 0
+      params.min = 0
+      params.hour = Number(period)
+      params.day = 0
+    } else {
+      params.sec = 0
+      params.min = 0
+      params.hour = 0
+      params.day = Number(period)
+    }
+
     await toast.promise(
       new Promise(async (resolve, reject) => {
         await offerItemOnMarket({ ...auction, ...params })
@@ -37,7 +60,7 @@ const OfferItem = () => {
 
   const closeModal = () => {
     setGlobalState('offerModal', 'scale-0')
-    setDays('')
+    setPeriod('')
     setBiddable('')
   }
 
@@ -45,7 +68,7 @@ const OfferItem = () => {
     <div
       className={`fixed top-0 left-0 w-screen h-screen flex items-center
         justify-center bg-black bg-opacity-50 transform
-        transition-transform duration-300 ${offerModal}`}
+        transition-transform timeline-300 ${offerModal}`}
     >
       <div className="bg-[#151c25] shadow-xl shadow-[#25bd9c] rounded-xl w-11/12 md:w-2/5 h-7/12 p-6">
         <form onSubmit={handleSubmit} className="flex flex-col">
@@ -78,13 +101,33 @@ const OfferItem = () => {
                 text-slate-500 bg-transparent border-0
                 focus:outline-none focus:ring-0 px-4 py-2"
               type="number"
-              name="days"
+              name="period"
               min={1}
               placeholder="Days E.g 7"
-              onChange={(e) => setDays(e.target.value)}
-              value={days}
+              onChange={(e) => setPeriod(e.target.value)}
+              value={period}
               required
             />
+          </div>
+
+          <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">
+            <select
+              className="block w-full text-sm
+              text-slate-500 bg-transparent border-0
+              focus:outline-none focus:ring-0 px-4 py-2"
+              name="biddable"
+              onChange={(e) => setTimeline(e.target.value)}
+              value={timeline}
+              required
+            >
+              <option value="" hidden>
+                Select Duration
+              </option>
+              <option value="sec">Seconds</option>
+              <option value="min">Minutes</option>
+              <option value="hour">Hours</option>
+              <option value="day">Days</option>
+            </select>
           </div>
 
           <div className="flex flex-row justify-between items-center bg-gray-800 rounded-xl mt-5">

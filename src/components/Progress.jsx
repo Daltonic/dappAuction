@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react'
 
 const Progress = ({ timestamp }) => {
+  const [percentage, setPercentage] = useState(0)
   const [timeLeft, setTimeLeft] = useState(timestamp - Date.now())
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(timestamp - Date.now())
+      const totalTime = timestamp - Date.now()
+      setPercentage((timeLeft / totalTime) * 100)
+      // console.log(percentage);
     }, 1000)
 
     return () => clearInterval(interval)
   }, [timestamp])
-
-  const totalTime = timestamp - Date.now()
-  const percentage = (timeLeft / totalTime) * 100
 
   return (
     <div

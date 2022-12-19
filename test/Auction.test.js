@@ -13,7 +13,7 @@ describe('Contracts', () => {
     'https://ipfs.io/ipfs/QmY3p6rUBSyyCCg4Gp35aCX2HGPUSyR2EcnUTrsrhK4si4'
   const price = toWei(1.5)
   const newPrice = toWei(2)
-  const period = 7
+  const secs = 5
   const metadata1 =
     'https://ipfs.io/ipfs/QmY3p6rUBSyyCCg4Gp35aCX2HGPUSyR2EcnUTrsrhK4si4'
   const metadata2 =
@@ -47,6 +47,29 @@ describe('Contracts', () => {
       expect(result).to.have.lengthOf(1)
     })
 
+    // it('Should confirm Live NFT Auction', async () => {
+    //   result = await contract.getLiveAuctions()
+    //   expect(result).to.have.lengthOf(0)
+
+    //   await contract.offerAuction(tokenId, !biddable, secs, 0, 0, 0, {
+    //     from: seller.address,
+    //   })
+
+    //   result = await contract.getLiveAuctions()
+    //   expect(result).to.have.lengthOf(1)
+
+    //   await (async () => {
+    //     await new Promise((resolve) =>
+    //       setTimeout(() => {
+    //         resolve()
+    //       }, (secs + 5) * 1000),
+    //     )
+    //   })()
+
+    //   result = await contract.getLiveAuctions()
+    //   expect(result).to.have.lengthOf(0)
+    // })
+
     it('Should confirm NFT Auction Purchase', async () => {
       result = await contract.getAuction(tokenId)
       expect(result.seller).to.be.equal(seller.address)
@@ -57,7 +80,7 @@ describe('Contracts', () => {
       result = await contract.balanceOf(seller.address)
       expect(result).to.equal(1)
 
-      await contract.offerAuction(tokenId, period, !biddable, {
+      await contract.offerAuction(tokenId, !biddable, secs, 0, 0, 0, {
         from: seller.address,
       })
 
@@ -94,7 +117,9 @@ describe('Contracts', () => {
       result = await contract.getUnsoldAuction()
       expect(result).to.have.lengthOf(2)
 
-      await contract.connect(reseller).offerAuction(tokenId2, period, !biddable)
+      await contract
+        .connect(reseller)
+        .offerAuction(tokenId2, !biddable, secs, 0, 0, 0)
       await contract.connect(buyer).buyAuctionedItem(tokenId2, {
         value: price,
       })
@@ -107,7 +132,9 @@ describe('Contracts', () => {
       result = await contract.getUnsoldAuction()
       expect(result).to.have.lengthOf(2)
 
-      await contract.offerAuction(tokenId, period, !biddable, { from: seller.address })
+      await contract.offerAuction(tokenId, !biddable, secs, 0, 0, 0, {
+        from: seller.address,
+      })
       await contract.connect(buyer).buyAuctionedItem(tokenId, {
         value: price,
       })
@@ -121,7 +148,7 @@ describe('Contracts', () => {
       result = await contract.getAuction(tokenId)
       expect(result.live).to.be.equal(false)
       // Seller offers NFT on market
-      await contract.offerAuction(tokenId, period, !biddable, {
+      await contract.offerAuction(tokenId, !biddable, secs, 0, 0, 0, {
         from: seller.address,
       })
       // Status after offering
@@ -135,7 +162,9 @@ describe('Contracts', () => {
       result = await contract.getAuction(tokenId)
       expect(result.live).to.be.equal(false)
       // Buyer offers NFT
-      await contract.connect(buyer).offerAuction(tokenId, period, !biddable)
+      await contract
+        .connect(buyer)
+        .offerAuction(tokenId, !biddable, secs, 0, 0, 0)
       // Status after offering
       result = await contract.getAuction(tokenId)
       expect(result.live).to.be.equal(true)
@@ -151,14 +180,14 @@ describe('Contracts', () => {
       result = await contract.balanceOf(bidder.address)
       expect(result).to.equal(0)
 
-      await contract.offerAuction(tokenId, period, biddable, {
+      await contract.offerAuction(tokenId, biddable, secs, 0, 0, 0, {
         from: seller.address,
       })
 
       await contract.connect(buyer).placeBid(tokenId, {
         value: price,
       })
-      
+
       await contract.connect(bidder).placeBid(tokenId, {
         value: newPrice,
       })
@@ -169,16 +198,18 @@ describe('Contracts', () => {
       result = await contract.getAuction(tokenId)
       expect(result.price).to.be.equal(newPrice)
 
-      await contract.connect(bidder).claimPrize(tokenId, 1)
+      setTimeout(async () => {
+        await contract.connect(bidder).claimPrize(tokenId, 1)
 
-      result = await contract.getAuction(tokenId)
-      expect(result.sold).to.be.equal(true)
-      expect(result.owner).to.be.equal(bidder.address)
+        result = await contract.getAuction(tokenId)
+        expect(result.sold).to.be.equal(true)
+        expect(result.owner).to.be.equal(bidder.address)
 
-      result = await contract.balanceOf(buyer.address)
-      expect(result).to.equal(0)
-      result = await contract.balanceOf(bidder.address)
-      expect(result).to.equal(1)
+        result = await contract.balanceOf(buyer.address)
+        expect(result).to.equal(0)
+        result = await contract.balanceOf(bidder.address)
+        expect(result).to.equal(1)
+      }, secs * 1000)
     })
   })
 })

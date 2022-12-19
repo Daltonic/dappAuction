@@ -23,18 +23,16 @@ const truncate = (text, startChars, endChars, maxLength) => {
   return text
 }
 
-const countDown = (timestamp) => {
-  const now = new Date().getTime()
-  const distance = timestamp - now
-
-  const days = Math.floor(distance / (1000 * 60 * 60 * 24))
-  const hours = Math.floor(
-    (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-  )
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000)
-
-  return `${days}d : ${hours}h : ${minutes}m : ${seconds}s`
+const convertToSeconds = (minutes, hours, days) => {
+  const seconds = minutes * 60 + hours * 3600 + days * 86400
+  const timestamp = new Date().getTime()
+  return timestamp + seconds
 }
 
-export { getGlobalState, useGlobalState, setGlobalState, truncate, countDown }
+export {
+  getGlobalState,
+  useGlobalState,
+  setGlobalState,
+  truncate,
+  convertToSeconds,
+}
