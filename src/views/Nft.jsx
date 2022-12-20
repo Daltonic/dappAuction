@@ -15,8 +15,9 @@ import { createNewGroup, getGroup, joinGroup } from '../services/chat'
 
 const Nft = () => {
   const { id } = useParams()
-  const [auction] = useGlobalState('auction')
+  const [group] = useGlobalState('group')
   const [bidders] = useGlobalState('bidders')
+  const [auction] = useGlobalState('auction')
   const [currentUser] = useGlobalState('currentUser')
   const [connectedAccount] = useGlobalState('connectedAccount')
 
@@ -32,8 +33,8 @@ const Nft = () => {
     <>
       <div
         className="grid sm:flex-row md:flex-row lg:grid-cols-2 gap-6
-      md:gap-4 lg:gap-3 py-2.5 text-white font-sans capitalize
-      w-4/5 mx-auto mt-5 justify-between items-center"
+        md:gap-4 lg:gap-3 py-2.5 text-white font-sans capitalize
+        w-4/5 mx-auto mt-5 justify-between items-center"
       >
         <div
           className=" text-white h-[400px] bg-gray-800 rounded-md shadow-xl 
@@ -57,7 +58,7 @@ const Nft = () => {
           ) : null}
         </div>
 
-        <Chat id={id} />
+        <Chat id={id} group={group} />
       </div>
     </>
   )
@@ -232,33 +233,29 @@ const ActionButton = ({ auction, account }) => {
     </div>
   ) : (
     <div className="flex justify-start items-center space-x-2 mt-2">
-      {auction?.biddable ? (
-        <>
-          {auction?.live && auction?.duration > Date.now() ? (
-            <button
-              type="button"
-              className="shadow-sm shadow-black text-white
+      {auction?.biddable && auction?.duration > Date.now() ? (
+        <button
+          type="button"
+          className="shadow-sm shadow-black text-white
               bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
                 rounded-sm cursor-pointer font-light"
-              onClick={onPlaceBid}
-            >
-              Place a Bid
-            </button>
-          ) : null}
-        </>
-      ) : (
-        <>
-          <button
-            type="button"
-            className="shadow-sm shadow-black text-white
+          onClick={onPlaceBid}
+        >
+          Place a Bid
+        </button>
+      ) : null}
+
+      {!auction?.biddable && auction?.duration > Date.now() ? (
+        <button
+          type="button"
+          className="shadow-sm shadow-black text-white
           bg-red-500 hover:bg-red-700 md:text-xs p-2.5
             rounded-sm cursor-pointer font-light"
-            onClick={handleNFTpurchase}
-          >
-            Buy NFT
-          </button>
-        </>
-      )}
+          onClick={handleNFTpurchase}
+        >
+          Buy NFT
+        </button>
+      ) : null}
 
       {!group?.hasJoined ? (
         <button
