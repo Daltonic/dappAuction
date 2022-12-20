@@ -3,11 +3,11 @@ import picture0 from '../assets/images/picture0.png'
 import picture9 from '../assets/images/picture9.png'
 import picture8 from '../assets/images/picture8.png'
 
-const Chat = () => {
+const Chat = ({ id }) => {
   return (
     <div>
-      <div className="mt-12 px-2 py-1 font-bold text-2xl italic">NFT-World</div>
-      <div className="px-2 font-semibold text-xs">Chat with mentorz</div>
+      <h2 className="mt-12 px-2 py-1 font-bold text-2xl italic">NFT-World</h2>
+      <h4 className="px-2 font-semibold text-xs">Chat with mentorz</h4>
       <div
         className="bg-gray-800 bg-opacity-50 h-[calc(100vh_-_18rem)] overflow-y-auto w-6/8 
         rounded-md p-2 sm:p-8 mt-5 shadow-md shadow-[#25bd9c] sm:w-[200%]"

@@ -1,5 +1,5 @@
 import { CometChat } from '@cometchat-pro/chat'
-import { getGlobalState, setGlobalState } from '../store'
+import { getGlobalState } from '../store'
 
 const CONSTANTS = {
   APP_ID: process.env.REACT_APP_COMET_CHAT_APP_ID,

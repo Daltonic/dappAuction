@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
 import Identicons from 'react-identicons'
@@ -11,16 +11,21 @@ import {
   getBidders,
   loadAuction,
 } from '../services/blockchain'
+import { createNewGroup, getGroup, joinGroup } from '../services/chat'
 
 const Nft = () => {
+  const { id } = useParams()
   const [auction] = useGlobalState('auction')
   const [bidders] = useGlobalState('bidders')
+  const [currentUser] = useGlobalState('currentUser')
   const [connectedAccount] = useGlobalState('connectedAccount')
-  const { id } = useParams()
 
   useEffect(async () => {
     await loadAuction(id)
     await getBidders(id)
+    await getGroup(`pid_${id}`)
+      .then((group) => setGlobalState('group', group))
+      .catch((error) => console.log(error))
   }, [])
 
   return (
@@ -47,10 +52,12 @@ const Nft = () => {
 
           <CountdownNPrice auction={auction} />
 
-          <ActionButton auction={auction} account={connectedAccount} />
+          {currentUser ? (
+            <ActionButton auction={auction} account={connectedAccount} />
+          ) : null}
         </div>
 
-        <Chat />
+        <Chat id={id} />
       </div>
     </>
   )
@@ -151,6 +158,8 @@ const CountdownNPrice = (auction) => {
 }
 
 const ActionButton = ({ auction, account }) => {
+  const [group] = useGlobalState('group')
+
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
     setGlobalState('bidBox', 'scale-100')
@@ -171,7 +180,57 @@ const ActionButton = ({ auction, account }) => {
     )
   }
 
-  return auction?.owner == account ? null : (
+  const handleCreateGroup = async () => {
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await createNewGroup(`pid_${auction?.tokenId}`, auction?.name)
+          .then((gp) => {
+            setGlobalState('group', gp)
+            resolve(gp)
+          })
+          .catch((error) => reject(new Error(error)))
+      }),
+      {
+        pending: 'Creating...',
+        success: 'Group created 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
+  }
+
+  const handleJoineGroup = async () => {
+    await toast.promise(
+      new Promise(async (resolve, reject) => {
+        await joinGroup(`pid_${auction?.tokenId}`)
+          .then((gp) => {
+            setGlobalState('group', gp)
+            resolve(gp)
+          })
+          .catch((error) => reject(new Error(error)))
+      }),
+      {
+        pending: 'Joining...',
+        success: 'Group Joined 👌',
+        error: 'Encountered error 🤯',
+      },
+    )
+  }
+
+  return auction?.owner == account ? (
+    <div className="flex justify-start items-center space-x-2 mt-2">
+      {!group ? (
+        <button
+          type="button"
+          className="shadow-sm shadow-black text-white
+          bg-red-500 hover:bg-red-700 md:text-xs p-2.5
+          rounded-sm cursor-pointer font-light"
+          onClick={handleCreateGroup}
+        >
+          Create Group
+        </button>
+      ) : null}
+    </div>
+  ) : (
     <div className="flex justify-start items-center space-x-2 mt-2">
       {auction?.biddable ? (
         <>
@@ -188,16 +247,30 @@ const ActionButton = ({ auction, account }) => {
           ) : null}
         </>
       ) : (
+        <>
+          <button
+            type="button"
+            className="shadow-sm shadow-black text-white
+          bg-red-500 hover:bg-red-700 md:text-xs p-2.5
+            rounded-sm cursor-pointer font-light"
+            onClick={handleNFTpurchase}
+          >
+            Buy NFT
+          </button>
+        </>
+      )}
+
+      {!group?.hasJoined ? (
         <button
           type="button"
           className="shadow-sm shadow-black text-white
-          bg-red-500 hover:bg-red-700 md:text-xs p-2.5
-            rounded-sm cursor-pointer font-light"
-          onClick={handleNFTpurchase}
+          bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
+          rounded-sm cursor-pointer font-light"
+          onClick={handleJoineGroup}
         >
-          Buy NFT
+          Join Group
         </button>
-      )}
+      ) : null}
     </div>
   )
 }
