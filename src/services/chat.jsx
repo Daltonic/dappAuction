@@ -102,7 +102,7 @@ const getMessages = async (UID) => {
   return new Promise(async (resolve, reject) => {
     await messagesRequest
       .fetchPrevious()
-      .then((messages) => resolve(messages))
+      .then((messages) => resolve(messages.filter((msg) => msg.type == 'text')))
       .catch((error) => reject(error))
   })
 }
@@ -121,6 +121,17 @@ const sendMessage = async (receiverID, messageText) => {
   })
 }
 
+const listenForMessage = async (listenerID) => {
+  return new Promise(async (resolve, reject) => {
+    CometChat.addMessageListener(
+      listenerID,
+      new CometChat.MessageListener({
+        onTextMessageReceived: (message) => resolve(message),
+      }),
+    )
+  })
+}
+
 export {
   initCometChat,
   loginWithCometChat,
@@ -132,5 +143,5 @@ export {
   createNewGroup,
   getGroup,
   joinGroup,
-  CometChat,
+  listenForMessage,
 }
