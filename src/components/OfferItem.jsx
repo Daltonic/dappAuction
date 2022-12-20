@@ -29,7 +29,7 @@ const OfferItem = () => {
       params.min = Number(period)
       params.hour = 0
       params.day = 0
-    } else if (sec == 'hour') {
+    } else if (timeline == 'hour') {
       params.sec = 0
       params.min = 0
       params.hour = Number(period)
