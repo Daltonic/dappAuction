@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
 import Identicons from 'react-identicons'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Countdown from '../components/Countdown'
 import { setGlobalState, truncate, useGlobalState } from '../store'
 import {
@@ -49,16 +49,16 @@ const Nft = () => {
         <div className="">
           <Details auction={auction} account={connectedAccount} />
 
-          {bidders.length > 0 ? <Bidders /> : null}
+          {bidders.length > 0 ? (
+            <Bidders bidders={bidders} auction={auction} />
+          ) : null}
 
           <CountdownNPrice auction={auction} />
 
-          {currentUser ? (
-            <ActionButton auction={auction} account={connectedAccount} />
-          ) : null}
+          <ActionButton auction={auction} account={connectedAccount} />
         </div>
 
-        <Chat id={id} group={group} />
+        {currentUser ? <Chat id={id} group={group} /> : null}
       </div>
     </>
   )
@@ -82,10 +82,10 @@ const Details = ({ auction, account }) => (
 )
 
 const Bidders = ({ bidders, auction }) => {
-  const handlePrizeClaim = async () => {
+  const handlePrizeClaim = async (id) => {
     await toast.promise(
       new Promise(async (resolve, reject) => {
-        await claimPrize({ tokenId, id })
+        await claimPrize({ tokenId: auction?.tokenId, id })
           .then(() => resolve())
           .catch(() => reject())
       }),
@@ -102,7 +102,7 @@ const Bidders = ({ bidders, auction }) => {
       <span>Top Bidders</span>
       <div className="h-[calc(100vh_-_40.5rem)] overflow-y-auto">
         {bidders.map((bid, i) => (
-          <div className="flex justify-between items-center">
+          <div key={i} className="flex justify-between items-center">
             <div className="flex justify-start items-center my-1 space-x-1">
               <Identicons
                 className="h-5 w-5 object-contain bg-gray-800 rounded-full"
@@ -117,15 +117,15 @@ const Bidders = ({ bidders, auction }) => {
               </span>
             </div>
 
-            {bid.bidder == auction.winner &&
+            {bid.bidder == auction?.winner &&
             !bid.won &&
-            Date.now() > timestamp ? (
+            Date.now() > auction?.duration ? (
               <button
                 type="button"
                 className="shadow-sm shadow-black text-white
             bg-green-500 hover:bg-green-700 md:text-xs p-1
               rounded-sm text-sm cursor-pointer font-light"
-                onClick={handlePrizeClaim}
+                onClick={() => handlePrizeClaim(i)}
               >
                 Claim Prize
               </button>
@@ -137,7 +137,7 @@ const Bidders = ({ bidders, auction }) => {
   )
 }
 
-const CountdownNPrice = (auction) => {
+const CountdownNPrice = ({ auction }) => {
   return (
     <div className="flex justify-between items-center py-5 ">
       <div>
@@ -160,6 +160,8 @@ const CountdownNPrice = (auction) => {
 
 const ActionButton = ({ auction, account }) => {
   const [group] = useGlobalState('group')
+  const [currentUser] = useGlobalState('currentUser')
+  const navigate = useNavigate()
 
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
@@ -182,6 +184,12 @@ const ActionButton = ({ auction, account }) => {
   }
 
   const handleCreateGroup = async () => {
+    if (!currentUser) {
+      navigate('/')
+      toast.warning('You need to login or sign up first.')
+      return
+    }
+
     await toast.promise(
       new Promise(async (resolve, reject) => {
         await createNewGroup(`pid_${auction?.tokenId}`, auction?.name)
@@ -200,6 +208,12 @@ const ActionButton = ({ auction, account }) => {
   }
 
   const handleJoineGroup = async () => {
+    if (!currentUser) {
+      navigate('/')
+      toast.warning('You need to login or sign up first.')
+      return
+    }
+    
     await toast.promise(
       new Promise(async (resolve, reject) => {
         await joinGroup(`pid_${auction?.tokenId}`)
@@ -233,12 +247,24 @@ const ActionButton = ({ auction, account }) => {
     </div>
   ) : (
     <div className="flex justify-start items-center space-x-2 mt-2">
+      {!group?.hasJoined ? (
+        <button
+          type="button"
+          className="shadow-sm shadow-black text-white
+          bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
+          rounded-sm cursor-pointer font-light"
+          onClick={handleJoineGroup}
+        >
+          Join Group
+        </button>
+      ) : null}
+
       {auction?.biddable && auction?.duration > Date.now() ? (
         <button
           type="button"
           className="shadow-sm shadow-black text-white
-              bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
-                rounded-sm cursor-pointer font-light"
+          bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
+          rounded-sm cursor-pointer font-light"
           onClick={onPlaceBid}
         >
           Place a Bid
@@ -250,22 +276,10 @@ const ActionButton = ({ auction, account }) => {
           type="button"
           className="shadow-sm shadow-black text-white
           bg-red-500 hover:bg-red-700 md:text-xs p-2.5
-            rounded-sm cursor-pointer font-light"
+          rounded-sm cursor-pointer font-light"
           onClick={handleNFTpurchase}
         >
           Buy NFT
-        </button>
-      ) : null}
-
-      {!group?.hasJoined ? (
-        <button
-          type="button"
-          className="shadow-sm shadow-black text-white
-          bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
-          rounded-sm cursor-pointer font-light"
-          onClick={handleJoineGroup}
-        >
-          Join Group
         </button>
       ) : null}
     </div>

@@ -18,16 +18,6 @@ const Artworks = ({ auctions, title, showOffer }) => {
           <Auction key={i} auction={auction} showOffer={showOffer} />
         ))}
       </div>
-
-      <div className="text-center my-5">
-        <button
-          className="shadow-xl shadow-black text-white
-          bg-green-500 hover:bg-green-700 px-4 py-2
-          rounded-full cursor-pointer text-sm sm:text-base"
-        >
-          Load More
-        </button>
-      </div>
     </div>
   )
 }
