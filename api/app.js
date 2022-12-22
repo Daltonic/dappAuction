@@ -2,7 +2,6 @@ require('dotenv').config()
 const cors = require('cors')
 const fs = require('fs').promises
 const express = require('express')
-const { v4: uuid } = require('uuid')
 const fileupload = require('express-fileupload')
 const { toWebp, toMetadata, uploadToIPFS } = require('./metadata')
 
@@ -33,7 +32,7 @@ app.post('/process', async (req, res) => {
       const imageURL = await uploadToIPFS(data)
 
       params = {
-        id: uuid(),
+        id: Date.now(),
         name,
         description,
         price,

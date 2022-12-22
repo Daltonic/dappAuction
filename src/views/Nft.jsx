@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
 import Identicons from 'react-identicons'
@@ -57,7 +57,8 @@ const Nft = () => {
 
           <ActionButton auction={auction} account={connectedAccount} />
         </div>
-
+      </div>
+      <div className="w-4/5 mx-auto">
         {currentUser ? <Chat id={id} group={group} /> : null}
       </div>
     </>
@@ -213,7 +214,7 @@ const ActionButton = ({ auction, account }) => {
       toast.warning('You need to login or sign up first.')
       return
     }
-    
+
     await toast.promise(
       new Promise(async (resolve, reject) => {
         await joinGroup(`pid_${auction?.tokenId}`)

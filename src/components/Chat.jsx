@@ -47,9 +47,9 @@ const Chat = ({ id, group }) => {
   }
 
   return (
-    <div>
-      <h2 className="mt-12 px-2 py-1 font-bold text-2xl italic">NFT-World</h2>
-      <h4 className="px-2 font-semibold text-xs">Join the Live Chat</h4>
+    <div className='w-full'>
+      <h2 className="mt-12 px-2 py-1 font-bold text-2xl italic text-white">NFT-World</h2>
+      <h4 className="px-2 font-semibold text-xs text-white">Join the Live Chat</h4>
       <div
         className="bg-gray-800 bg-opacity-50 w-full
         rounded-md p-2 sm:p-8 mt-5 shadow-md shadow-[#25bd9c]"
