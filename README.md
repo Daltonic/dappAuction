@@ -1,12 +1,16 @@
-# How to Build an Exciting Blockchain Voting System with React, Solidity, and CometChat
+# How to Build an NFT Auction Site with React, Solidity, and CometChat
 
-Read the full tutorial here: [**>> How to Build an Exciting Blockchain Voting System with React, Solidity, and CometChat**](https://daltonic.github.io)
+Read the full tutorial here: [**>> How to Build an NFT Auction Site with React, Solidity, and CometChat**](https://daltonic.github.io)
 
-This example shows How to Build an Exciting Blockchain Voting System with React, Solidity, and CometChat:
+This example shows How to Build an NFT Auction Site with React, Solidity, and CometChat:
 
-![Game Shop](./screenshots/0.gif)
+![Offering Item](./screenshots/0.gif)
 
-<center><figcaption>Voting System</figcaption></center>
+<center><figcaption>NFT Auction Marketplace: offerings</figcaption></center>
+
+![Bidding Item](./screenshots/1.gif)
+
+<center><figcaption>NFT Auction Marketplace: biddings</figcaption></center>
 
 ## Technology
 
@@ -15,6 +19,7 @@ This demo uses:
 - Metamask
 - Hardhat
 - Alchamy
+- Infuria
 - ReactJs
 - Tailwind CSS
 - Solidity
@@ -30,8 +35,8 @@ To run the demo follow these steps:
    ```sh
 
    # Make sure you have the above prerequisites installed already!
-   git clone https://github.com/Daltonic/tailwind_ethers_starter_kit blueVotes
-   cd blueVotes # Navigate to the new folder.
+   git clone https://github.com/Daltonic/tailwind_ethers_starter_kit dappAution
+   cd dappAution # Navigate to the new folder.
    yarn install # Installs all the dependencies.
    ```
 
@@ -46,7 +51,7 @@ To run the demo follow these steps:
 
 If your confuse about the installation, check out this **TUTORIAL** to see how you should run it.
 
-Questions about running the demo? [Open an issue](https://github.com/Daltonic/bluevotes/issues). We're here to help ✌️
+Questions about running the demo? [Open an issue](https://github.com/Daltonic/dappAution/issues). We're here to help ✌️
 
 ## Useful links
 
@@ -55,8 +60,8 @@ Questions about running the demo? [Open an issue](https://github.com/Daltonic/bl
 - 🚀 [Remix Editor](https://remix.ethereum.org/)
 - 💡 [Hardhat](https://hardhat.org/)
 - 📈 [Alchamy](https://www.alchemy.com/)
+- ✨ [Infuria](https://infura.io/)
 - 🔥 [ReactJs](https://reactjs.org/)
 - 🐻 [Solidity](https://soliditylang.org/)
 - 👀 [Ethersjs](https://docs.ethers.io/v5/)
 - 🎅 [CometChat](https://try.cometchat.com/daltonic)
-- ✨ [Live Demo](https://gameshop-af682.web.app/)
