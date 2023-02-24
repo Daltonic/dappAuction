@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
-import Chat from '../components/Chat'
 import { toast } from 'react-toastify'
 import Identicons from 'react-identicons'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Countdown from '../components/Countdown'
 import { setGlobalState, truncate, useGlobalState } from '../store'
 import {
@@ -11,22 +10,16 @@ import {
   getBidders,
   loadAuction,
 } from '../services/blockchain'
-import { createNewGroup, getGroup, joinGroup } from '../services/chat'
 
 const Nft = () => {
   const { id } = useParams()
-  const [group] = useGlobalState('group')
   const [bidders] = useGlobalState('bidders')
   const [auction] = useGlobalState('auction')
-  const [currentUser] = useGlobalState('currentUser')
   const [connectedAccount] = useGlobalState('connectedAccount')
 
   useEffect(async () => {
     await loadAuction(id)
     await getBidders(id)
-    await getGroup(`pid_${id}`)
-      .then((group) => setGlobalState('group', group))
-      .catch((error) => console.log(error))
   }, [])
 
   return (
@@ -57,9 +50,6 @@ const Nft = () => {
 
           <ActionButton auction={auction} account={connectedAccount} />
         </div>
-      </div>
-      <div className="w-4/5 mx-auto">
-        {currentUser ? <Chat id={id} group={group} /> : null}
       </div>
     </>
   )
@@ -159,11 +149,7 @@ const CountdownNPrice = ({ auction }) => {
   )
 }
 
-const ActionButton = ({ auction, account }) => {
-  const [group] = useGlobalState('group')
-  const [currentUser] = useGlobalState('currentUser')
-  const navigate = useNavigate()
-
+const ActionButton = ({ auction }) => {
   const onPlaceBid = () => {
     setGlobalState('auction', auction)
     setGlobalState('bidBox', 'scale-100')
@@ -184,82 +170,8 @@ const ActionButton = ({ auction, account }) => {
     )
   }
 
-  const handleCreateGroup = async () => {
-    if (!currentUser) {
-      navigate('/')
-      toast.warning('You need to login or sign up first.')
-      return
-    }
-
-    await toast.promise(
-      new Promise(async (resolve, reject) => {
-        await createNewGroup(`pid_${auction?.tokenId}`, auction?.name)
-          .then((gp) => {
-            setGlobalState('group', gp)
-            resolve(gp)
-          })
-          .catch((error) => reject(new Error(error)))
-      }),
-      {
-        pending: 'Creating...',
-        success: 'Group created 👌',
-        error: 'Encountered error 🤯',
-      },
-    )
-  }
-
-  const handleJoineGroup = async () => {
-    if (!currentUser) {
-      navigate('/')
-      toast.warning('You need to login or sign up first.')
-      return
-    }
-
-    await toast.promise(
-      new Promise(async (resolve, reject) => {
-        await joinGroup(`pid_${auction?.tokenId}`)
-          .then((gp) => {
-            setGlobalState('group', gp)
-            resolve(gp)
-          })
-          .catch((error) => reject(new Error(error)))
-      }),
-      {
-        pending: 'Joining...',
-        success: 'Group Joined 👌',
-        error: 'Encountered error 🤯',
-      },
-    )
-  }
-
-  return auction?.owner == account ? (
+  return (
     <div className="flex justify-start items-center space-x-2 mt-2">
-      {!group ? (
-        <button
-          type="button"
-          className="shadow-sm shadow-black text-white
-          bg-red-500 hover:bg-red-700 md:text-xs p-2.5
-          rounded-sm cursor-pointer font-light"
-          onClick={handleCreateGroup}
-        >
-          Create Group
-        </button>
-      ) : null}
-    </div>
-  ) : (
-    <div className="flex justify-start items-center space-x-2 mt-2">
-      {!group?.hasJoined ? (
-        <button
-          type="button"
-          className="shadow-sm shadow-black text-white
-          bg-gray-500 hover:bg-gray-700 md:text-xs p-2.5
-          rounded-sm cursor-pointer font-light"
-          onClick={handleJoineGroup}
-        >
-          Join Group
-        </button>
-      ) : null}
-
       {auction?.biddable && auction?.duration > Date.now() ? (
         <button
           type="button"

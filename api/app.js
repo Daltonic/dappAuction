@@ -1,4 +1,3 @@
-require('dotenv').config()
 const cors = require('cors')
 const fs = require('fs').promises
 const express = require('express')
