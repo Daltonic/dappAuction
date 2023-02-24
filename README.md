@@ -18,7 +18,6 @@ This demo uses:
 
 - Metamask
 - Hardhat
-- Alchamy
 - Infuria
 - ReactJs
 - Tailwind CSS

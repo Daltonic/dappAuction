@@ -1,3 +1,4 @@
+require('dotenv').config()
 const sharp = require('sharp')
 const { faker } = require('@faker-js/faker')
 const ipfsClient = require('ipfs-http-client')
